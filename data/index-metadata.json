@@ -1,0 +1,5 @@
+{
+  "model": "qwen3-embedding:0.6b",
+  "chunks": 327,
+  "dimensions": 1024
+}
