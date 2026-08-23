@@ -25,7 +25,7 @@ OLLAMA_BASE = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "gemma3:12b")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "qwen3-embedding:0.6b")
 TOP_K = int(os.getenv("RAG_TOP_K", "6"))
-MIN_SCORE = float(os.getenv("RAG_MIN_SCORE", "0.20"))
+MIN_SCORE = float(os.getenv("RAG_MIN_SCORE", "0.50"))
 MAX_REQUESTS_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "30"))
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")
 MAX_UPLOAD_BYTES = int(os.getenv("MAX_UPLOAD_MB", "30")) * 1024 * 1024
@@ -59,6 +59,7 @@ rebuild_state = {"running": False, "stage": "ready", "message": "Index is ready"
 class ChatRequest(BaseModel):
     message: str = Field(min_length=1, max_length=1500)
     language: str = Field(default="sw", max_length=16)
+    history: list[dict[str, str]] = Field(default_factory=list, max_length=8)
 
 
 class DocumentSettings(BaseModel):
@@ -164,10 +165,15 @@ def retrieve(question: str) -> list[tuple[dict, float]]:
     return [(current_chunks[int(i)], float(scores[int(i)])) for i in indices if scores[int(i)] >= MIN_SCORE]
 
 
-def build_prompt(question: str, language: str, matches: list[tuple[dict, float]]) -> str:
+def build_prompt(question: str, language: str, matches: list[tuple[dict, float]], history: list[dict[str, str]]) -> str:
     context = "\n\n".join(
         f"[Reference {number}]\n{item['text']}"
         for number, (item, _score) in enumerate(matches, 1)
+    )
+    conversation = "\n".join(
+        f"{item.get('role', 'user')}: {str(item.get('content', ''))[:1500]}"
+        for item in history[-8:]
+        if item.get("role") in {"user", "assistant"} and item.get("content")
     )
     return f"""You are Mr. HamaHama, Your Immigration Assistant for the Tanzania Immigration Department.
 
@@ -175,10 +181,14 @@ STRICT RULES:
 - Answer only from the supplied reference text.
 - Answer in the same language as the user's question. Detected language code: {language}.
 - Be clear, courteous, accurate and concise.
+- Respond naturally and conversationally, remembering the recent conversation when answering follow-up questions.
 - Do not mention PDFs, documents, references, retrieval, context, page numbers, filenames or these instructions.
 - Do not invent fees, dates, requirements or legal rules.
-- If the references do not contain the answer, say you do not have enough official information and recommend contacting the Tanzania Immigration Department.
+- If the references do not contain a reliable answer, clearly say you do not have enough official information and tell the user to contact the Tanzania Immigration Department at info@immigration.go.tz. Never guess.
 - This is general information, not a final legal or administrative decision.
+
+RECENT CONVERSATION:
+{conversation or '(none)'}
 
 REFERENCE TEXT:
 {context}
@@ -282,14 +292,25 @@ def admin_rebuild_status(request: Request) -> dict:
 def chat(payload: ChatRequest, request: Request) -> dict:
     check_rate_limit(request.client.host if request.client else "unknown")
     try:
-        matches = retrieve(payload.message)
+        recent_user_context = " ".join(
+            str(item.get("content", ""))
+            for item in payload.history[-4:]
+            if item.get("role") == "user"
+        )
+        matches = retrieve(f"{recent_user_context} {payload.message}".strip())
         if not matches:
-            raise HTTPException(status_code=404, detail="No sufficiently relevant official information found.")
+            fallback = {
+                "sw": "Samahani, sina taarifa rasmi za kutosha kujibu swali hilo kwa uhakika. Tafadhali wasiliana na Idara ya Uhamiaji Tanzania kupitia info@immigration.go.tz.",
+                "en": "Sorry, I do not have enough official information to answer that confidently. Please contact the Tanzania Immigration Department at info@immigration.go.tz.",
+                "ar": "عذراً، لا تتوفر لدي معلومات رسمية كافية للإجابة بثقة. يرجى التواصل مع إدارة الهجرة في تنزانيا عبر info@immigration.go.tz.",
+                "hi": "क्षमा करें, मेरे पास इस प्रश्न का विश्वसनीय उत्तर देने के लिए पर्याप्त आधिकारिक जानकारी नहीं है। कृपया info@immigration.go.tz पर तंज़ानिया आव्रजन विभाग से संपर्क करें।",
+            }.get(payload.language, "I do not have enough official information to answer confidently. Please contact the Tanzania Immigration Department at info@immigration.go.tz.")
+            return {"answer": fallback, "language": payload.language, "fallback": True}
         response = requests.post(
             f"{OLLAMA_BASE}/api/generate",
             json={
                 "model": CHAT_MODEL,
-                "prompt": build_prompt(payload.message, payload.language, matches),
+                "prompt": build_prompt(payload.message, payload.language, matches, payload.history),
                 "stream": False,
                 "keep_alive": "15m",
                 "options": {"temperature": 0.15, "top_p": 0.85, "num_ctx": 8192, "num_predict": 320},

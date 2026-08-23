@@ -38,7 +38,7 @@
   var launcher=document.createElement('button'); launcher.className='ua-launcher'; launcher.setAttribute('aria-label','Ask Me! Open Mr. HamaHama'); launcher.innerHTML='<span class="ua-launch-logo"><img src="'+base+'assets/idara-ya-uhamiaji-logo.png" alt=""><i class="ua-notify"></i></span><span class="ua-launch-copy"><strong>Ask Me!</strong><small>Mr. HamaHama</small></span>'+icon('chat');
   document.body.appendChild(panel); document.body.appendChild(launcher);
 
-  var messages=panel.querySelector('.ua-messages'), chat=panel.querySelector('.ua-chat'), input=panel.querySelector('textarea'), activeLang='sw', knowledge=[], greeted=false;
+  var messages=panel.querySelector('.ua-messages'), chat=panel.querySelector('.ua-chat'), input=panel.querySelector('textarea'), activeLang='sw', knowledge=[], greeted=false, conversation=[];
   function detect(text){
     if(/[\u3040-\u30ff]/.test(text))return'ja'; if(/[\uac00-\ud7af]/.test(text))return'ko'; if(/[\u4e00-\u9fff]/.test(text))return'zh';
     if(/[\u0900-\u097f]/.test(text))return'hi'; if(/[\u0980-\u09ff]/.test(text))return'bn'; if(/[\u0b80-\u0bff]/.test(text))return'ta'; if(/[\u0c00-\u0c7f]/.test(text))return'te'; if(/[\u0a80-\u0aff]/.test(text))return'gu'; if(/[\u0a00-\u0a7f]/.test(text))return'pa';
@@ -54,13 +54,13 @@
   function search(q){var terms=norm(q).split(/\s+/).filter(function(x){return x.length>2&&!stop[x]});return knowledge.map(function(c){var hay=norm(c.document+' '+c.category+' '+c.text),score=terms.reduce(function(s,t){return s+(hay.split(t).length-1)},0);return{c:c,score:score}}).filter(function(x){return x.score>0}).sort(function(a,b){return b.score-a.score})[0]}
   function concise(text){var s=(text||'').replace(/\s+/g,' ').trim(),sentences=s.match(/[^.!?]+[.!?]+/g)||[s];return sentences.slice(0,3).join(' ').slice(0,560)}
   async function answer(q){
-    var locale=ui[activeLang]||ui.en,hit=search(q), local=hit?{text:concise(hit.c.text),source:hit.c.document,page:hit.c.page}:{text:locale.notfound,source:'CLIENT SERVICE CHARTER.pdf',page:1};
+    var locale=ui[activeLang]||ui.en,hit=search(q), local=hit?{text:concise(hit.c.text),source:hit.c.document,page:hit.c.page}:{text:locale.notfound+' info@immigration.go.tz',source:'',page:0};
     if(!endpoint)return local;
-    try{var res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,language:activeLang,context:hit?hit.c:null})});if(!res.ok)throw new Error('request failed');var data=await res.json();return{text:data.answer||data.message||local.text,source:data.source||local.source,page:data.page||local.page}}catch(e){return local}
+    try{var res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,language:activeLang,history:conversation.slice(-8)})});if(!res.ok)throw new Error('request failed');var data=await res.json();return{text:data.answer||data.message||local.text}}catch(e){return local}
   }
   async function add(q){
     q=(q||'').trim();if(!q)return;setLanguage(detect(q));messages.insertAdjacentHTML('beforeend','<div class="ua-message user"></div>');messages.lastElementChild.textContent=q;input.value='';var typing=document.createElement('div');typing.className='ua-typing';typing.innerHTML='<i></i><i></i><i></i>';messages.appendChild(typing);chat.scrollTop=chat.scrollHeight;
-    var a=await answer(q),locale=ui[activeLang]||ui.en;typing.remove();var box=document.createElement('div');box.className='ua-message bot ua-answer';box.innerHTML='<p></p>';box.querySelector('p').textContent=a.text;messages.appendChild(box);var note=document.createElement('div');note.className='ua-disclaimer';note.innerHTML=icon('info')+'<span></span>';note.querySelector('span').textContent=locale.disclaimer;messages.appendChild(note);chat.scrollTop=chat.scrollHeight;
+    var a=await answer(q),locale=ui[activeLang]||ui.en;conversation.push({role:'user',content:q},{role:'assistant',content:a.text});conversation=conversation.slice(-8);typing.remove();var box=document.createElement('div');box.className='ua-message bot ua-answer';box.innerHTML='<p></p>';box.querySelector('p').textContent=a.text;messages.appendChild(box);var note=document.createElement('div');note.className='ua-disclaimer';note.innerHTML=icon('info')+'<span></span>';note.querySelector('span').textContent=locale.disclaimer;messages.appendChild(note);chat.scrollTop=chat.scrollHeight;
   }
   function greet(){if(greeted)return;greeted=true;var l=ui[activeLang]||ui.en;var hello=document.createElement('div');hello.className='ua-message bot ua-answer ua-greeting';hello.textContent=l.welcome+' '+l.intro;messages.appendChild(hello);chat.scrollTop=chat.scrollHeight}
   function toggle(show){panel.hidden=!show;launcher.style.display=show?'none':'flex';if(show){greet();setTimeout(function(){input.focus()},50)}}
