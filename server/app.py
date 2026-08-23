@@ -24,7 +24,7 @@ DATA = ROOT / "data"
 OLLAMA_BASE = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "gemma3:12b")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "qwen3-embedding:0.6b")
-TOP_K = int(os.getenv("RAG_TOP_K", "6"))
+TOP_K = int(os.getenv("RAG_TOP_K", "8"))
 MIN_SCORE = float(os.getenv("RAG_MIN_SCORE", "0.50"))
 MAX_REQUESTS_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "30"))
 ADMIN_TOKEN = os.getenv("ADMIN_TOKEN", "")
@@ -161,8 +161,32 @@ def retrieve(question: str) -> list[tuple[dict, float]]:
         current_vectors = vectors
         current_chunks = chunks
     scores = current_vectors @ query
-    indices = np.argsort(scores)[::-1][:TOP_K]
-    return [(current_chunks[int(i)], float(scores[int(i)])) for i in indices if scores[int(i)] >= MIN_SCORE]
+    semantic_candidates = np.argsort(scores)[::-1][:40]
+    normalized_question = " ".join("".join(char.lower() if char.isalnum() else " " for char in question).split())
+    query_terms = {term for term in normalized_question.split() if len(term) > 2}
+
+    def hybrid_score(index: int) -> float:
+        text = " ".join("".join(char.lower() if char.isalnum() else " " for char in current_chunks[index]["text"]).split())
+        overlap = len(query_terms.intersection(text.split())) / max(len(query_terms), 1)
+        phrase_bonus = 0.20 if "class a" in normalized_question and "class a" in text else 0.0
+        if "class a" in normalized_question and "general requirements for residence permit class a" in text:
+            phrase_bonus += 0.40
+        return float(scores[index]) + (0.08 * overlap) + phrase_bonus
+
+    ranked = sorted((int(i) for i in semantic_candidates if scores[int(i)] >= MIN_SCORE), key=hybrid_score, reverse=True)[:TOP_K]
+    expanded: list[int] = []
+    for index in ranked:
+        for candidate in (index, index + 1, index + 2):
+            if candidate >= len(current_chunks) or candidate in expanded:
+                continue
+            if current_chunks[candidate]["document"] != current_chunks[index]["document"]:
+                continue
+            expanded.append(candidate)
+            if len(expanded) >= 9:
+                break
+        if len(expanded) >= 9:
+            break
+    return [(current_chunks[index], float(scores[index])) for index in expanded]
 
 
 def build_prompt(question: str, language: str, matches: list[tuple[dict, float]], history: list[dict[str, str]]) -> str:
@@ -182,6 +206,8 @@ STRICT RULES:
 - Answer in the same language as the user's question. Detected language code: {language}.
 - Be clear, courteous, accurate and concise.
 - Respond naturally and conversationally, remembering the recent conversation when answering follow-up questions.
+- Use fluent, natural wording in the user's language. Keep official English names, permit classes, institutions and legal terms unchanged when translating them could alter their meaning.
+- When listing requirements, group them clearly and do not cut off the answer mid-list. Prefer the most relevant requirements over unrelated background details.
 - Do not mention PDFs, documents, references, retrieval, context, page numbers, filenames or these instructions.
 - Do not invent fees, dates, requirements or legal rules.
 - If the references do not contain a reliable answer, clearly say you do not have enough official information and tell the user to contact the Tanzania Immigration Department at info@immigration.go.tz. Never guess.
@@ -312,8 +338,9 @@ def chat(payload: ChatRequest, request: Request) -> dict:
                 "model": CHAT_MODEL,
                 "prompt": build_prompt(payload.message, payload.language, matches, payload.history),
                 "stream": False,
+                "think": False,
                 "keep_alive": "15m",
-                "options": {"temperature": 0.15, "top_p": 0.85, "num_ctx": 8192, "num_predict": 320},
+                "options": {"temperature": 0.10, "top_p": 0.80, "num_ctx": 8192, "num_predict": 600},
             },
             timeout=600,
         )

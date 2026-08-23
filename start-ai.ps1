@@ -10,9 +10,14 @@ if (-not (Test-Path -LiteralPath $tokenPath)) {
     ([BitConverter]::ToString($bytes) -replace '-', '').ToLowerInvariant() | Set-Content -LiteralPath $tokenPath -NoNewline
 }
 $env:ADMIN_TOKEN = Get-Content -Raw -LiteralPath $tokenPath
+if (-not $env:CHAT_MODEL) {
+    $installedModels = (& ollama list 2>$null | Out-String)
+    $env:CHAT_MODEL = if ($installedModels -match '(?m)^qwen3:8b\s') { 'qwen3:8b' } else { 'gemma3:12b' }
+}
 
 Write-Host 'Starting Mr. HamaHama local AI API...' -ForegroundColor Cyan
 Write-Host 'Health: http://127.0.0.1:8765/health'
+Write-Host "Chat model: $($env:CHAT_MODEL)"
 Write-Host 'Admin:  http://127.0.0.1:8099/admin.html'
 Write-Host "Admin token: $($env:ADMIN_TOKEN)" -ForegroundColor Yellow
 Write-Host 'Press Ctrl+C to stop.'
