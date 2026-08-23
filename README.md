@@ -99,3 +99,7 @@ Enter the admin token shown by `start-ai.ps1`. The admin page can:
 
 Expired and inactive documents are automatically excluded the next time the
 index is rebuilt. Keep `.local/admin-token.txt` private; it is ignored by Git.
+
+For one-click local access, run `open-admin.ps1`. It starts the local static
+server when necessary, opens the admin page, signs in from the private local
+token, and immediately removes the token from the browser address bar.
