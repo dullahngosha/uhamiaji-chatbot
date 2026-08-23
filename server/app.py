@@ -170,6 +170,45 @@ def embed_query(text: str) -> np.ndarray:
     return vector / max(float(np.linalg.norm(vector)), 1e-12)
 
 
+def is_greeting(text: str) -> bool:
+    normalized = " ".join(re.findall(r"[^\W\d_]+", text.lower(), flags=re.UNICODE))
+    return normalized in {
+        "hello", "hi", "hey", "habari", "hujambo", "salama", "mambo",
+        "bonjour", "hola", "مرحبا", "السلام عليكم", "नमस्ते",
+    }
+
+
+def is_low_quality_answer(text: str) -> bool:
+    words = re.findall(r"[^\W\d_]+", text.lower(), flags=re.UNICODE)
+    if len(words) < 8:
+        return True
+    most_common = max((words.count(word) for word in set(words)), default=0)
+    return most_common >= 8 and most_common / len(words) >= 0.25
+
+
+def greeting_answer(language: str) -> str:
+    return {
+        "sw": "Karibu! Mimi ni Mr. HamaHama, msaidizi wako wa masuala ya Uhamiaji. Naweza kukusaidia kuhusu visa, pasipoti, vibali vya kuishi, uraia na huduma nyingine za Idara ya Uhamiaji Tanzania. Ungependa msaada gani?",
+        "en": "Welcome! I am Mr. HamaHama, your Immigration Assistant. I can help with visas, passports, residence permits, citizenship and other Tanzania Immigration Department services. How may I help you?",
+        "ar": "مرحباً! أنا السيد هاما هاما، مساعدك لشؤون الهجرة. يمكنني مساعدتك بشأن التأشيرات وجوازات السفر وتصاريح الإقامة والجنسية. كيف يمكنني مساعدتك؟",
+        "hi": "स्वागत है! मैं मिस्टर हामाहामा, आपका आव्रजन सहायक हूँ। मैं वीज़ा, पासपोर्ट, निवास परमिट और नागरिकता संबंधी जानकारी में सहायता कर सकता हूँ। मैं आपकी क्या मदद करूँ?",
+    }.get(language, "Welcome! I am Mr. HamaHama, your Immigration Assistant. How may I help you?")
+
+
+def reliable_topic_fallback(question: str, language: str) -> str:
+    normalized = question.lower()
+    if any(term in normalized for term in ("pasipoti", "passport")):
+        if language == "sw":
+            return ("Ili kuomba pasipoti mpya ya kielektroniki, tembelea www.immigration.go.tz, chagua E-Services kisha Passport Application Form na ujaze ombi jipya. "
+                    "Baada ya usajili utapewa namba ya ombi na control number ya malipo ya awali. Chapisha fomu na uiwasilishe katika Ofisi ya Uhamiaji pamoja na viambato vinavyothibitisha uraia na madhumuni ya safari. "
+                    "Ada iliyoainishwa kwenye mwongozo uliopo ni TSh 150,000; thibitisha ada ya sasa na Idara ya Uhamiaji Tanzania kabla ya kulipa.")
+        return ("To apply for a new electronic passport, visit www.immigration.go.tz, open E-Services and select Passport Application Form. Complete a new application, use the application and payment reference numbers provided, then print and submit the form with evidence of citizenship and your reason for travel at an Immigration Office. Verify current fees before payment.")
+    return {
+        "sw": "Samahani, sikuweza kuandaa jibu la kuaminika. Tafadhali uliza kwa maelezo zaidi au wasiliana na Idara ya Uhamiaji Tanzania kupitia info@immigration.go.tz.",
+        "en": "Sorry, I could not prepare a reliable answer. Please provide more detail or contact the Tanzania Immigration Department at info@immigration.go.tz.",
+    }.get(language, "I could not prepare a reliable answer. Please contact the Tanzania Immigration Department at info@immigration.go.tz.")
+
+
 def retrieve(question: str) -> list[tuple[dict, float]]:
     canonical_question = re.sub(r"\bviza\b", "visa", question, flags=re.IGNORECASE)
     query = embed_query(canonical_question)
@@ -348,6 +387,8 @@ def admin_rebuild_status(request: Request) -> dict:
 def chat(payload: ChatRequest, request: Request) -> dict:
     check_rate_limit(request.client.host if request.client else "unknown")
     try:
+        if is_greeting(payload.message):
+            return {"answer": greeting_answer(payload.language), "language": payload.language}
         recent_user_context = " ".join(
             str(item.get("content", ""))
             for item in payload.history[-4:]
@@ -376,8 +417,8 @@ def chat(payload: ChatRequest, request: Request) -> dict:
         )
         response.raise_for_status()
         answer = response.json().get("response", "").strip()
-        if not answer:
-            raise RuntimeError("The model returned an empty response.")
+        if not answer or is_low_quality_answer(answer):
+            answer = reliable_topic_fallback(payload.message, payload.language)
         return {"answer": answer, "language": payload.language}
     except HTTPException:
         raise

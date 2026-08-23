@@ -1,10 +1,19 @@
 """Integration checks for document retrieval quality (requires local Ollama)."""
 import unittest
 
-from server.app import build_prompt, retrieve
+from server.app import build_prompt, is_greeting, is_low_quality_answer, retrieve
 
 
 class RetrievalQualityTests(unittest.TestCase):
+    def test_common_greetings_are_detected_without_document_search(self) -> None:
+        self.assertTrue(is_greeting("hello"))
+        self.assertTrue(is_greeting("habari"))
+        self.assertFalse(is_greeting("naomba pasipoti"))
+
+    def test_repetitive_small_model_output_is_rejected(self) -> None:
+        self.assertTrue(is_low_quality_answer("Mwombaji " * 20))
+        self.assertFalse(is_low_quality_answer("Pasipoti ni hati ya kusafiria inayotolewa na Serikali."))
+
     def test_prompt_requires_a_useful_overview_for_broad_questions(self) -> None:
         prompt = build_prompt("eleza kuhusu viza", "sw", [], [])
         self.assertIn("Give a useful overview", prompt)
