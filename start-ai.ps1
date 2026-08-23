@@ -18,7 +18,8 @@ if (-not $env:CHAT_MODEL) {
 Write-Host 'Starting Mr. HamaHama local AI API...' -ForegroundColor Cyan
 Write-Host 'Health: http://127.0.0.1:8765/health'
 Write-Host "Chat model: $($env:CHAT_MODEL)"
-Write-Host 'Admin:  http://127.0.0.1:8099/admin.html'
+Write-Host 'Chatbot: http://127.0.0.1:8765/'
+Write-Host 'Admin:   http://127.0.0.1:8765/admin.html'
 Write-Host "Admin token: $($env:ADMIN_TOKEN)" -ForegroundColor Yellow
 Write-Host 'Easy admin: run .\open-admin.ps1' -ForegroundColor Green
 Write-Host 'Press Ctrl+C to stop.'

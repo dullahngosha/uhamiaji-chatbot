@@ -1,6 +1,6 @@
 (function(){
   'use strict';
-  var API='http://127.0.0.1:8765',token=sessionStorage.getItem('hama_admin_token')||'',documents=[],pollTimer=null;
+  var API=window.UHAMIAJI_ADMIN_API||(location.port==='8099'?'http://127.0.0.1:8765':location.origin),token=sessionStorage.getItem('hama_admin_token')||'',documents=[],pollTimer=null;
   var tokenMatch=location.hash.match(/^#token=([a-f0-9]{64})$/i);
   if(tokenMatch){token=tokenMatch[1];sessionStorage.setItem('hama_admin_token',token);history.replaceState(null,'',location.pathname+location.search)}
   var $=function(s){return document.querySelector(s)},dialog=$('#loginDialog'),rows=$('#docRows'),toast=$('#toast');

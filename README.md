@@ -2,13 +2,21 @@
 
 Embeddable Tanzania Immigration document assistant, powered by Ngosha Multimedia and NgoshaChatBot AI.
 
-## Preview
+## Unified local app
 
-Serve this directory over HTTP and open `index.html`.
+Start the AI server once:
 
 ```powershell
-python -m http.server 8080
+.\start-ai.ps1
 ```
+
+Then use the two connected pages on the same origin:
+
+- Chatbot: `http://127.0.0.1:8765/`
+- Admin: run `open-admin.ps1` or open `http://127.0.0.1:8765/admin.html`
+
+The admin page writes to the same document registry and rebuilds the same index
+used immediately by the chatbot page.
 
 ## Embed on a website
 
@@ -83,10 +91,10 @@ index stays local and is intentionally excluded from Git.
 
 ## Manage chatbot documents
 
-Start the AI API with `start-ai.ps1`, serve this folder over HTTP, then open:
+Start the unified app with `start-ai.ps1`, then open:
 
 ```text
-http://127.0.0.1:8080/admin.html
+http://127.0.0.1:8765/admin.html
 ```
 
 Enter the admin token shown by `start-ai.ps1`. The admin page can:
@@ -100,6 +108,21 @@ Enter the admin token shown by `start-ai.ps1`. The admin page can:
 Expired and inactive documents are automatically excluded the next time the
 index is rebuilt. Keep `.local/admin-token.txt` private; it is ignored by Git.
 
-For one-click local access, run `open-admin.ps1`. It starts the local static
-server when necessary, opens the admin page, signs in from the private local
-token, and immediately removes the token from the browser address bar.
+For one-click local access, run `open-admin.ps1`. It opens the admin page on the
+same server as the chatbot, signs in from the private local token, and
+immediately removes the token from the browser address bar.
+
+## Online deployment shape
+
+Deploy this FastAPI application and Ollama on the same private GPU server (or
+point `OLLAMA_BASE_URL` at a private Ollama service). The public HTTPS host then
+serves all of these from one domain:
+
+- `/` — chatbot website;
+- `/admin.html` — protected document manager;
+- `/api/chat` — RAG chat API;
+- `/api/admin/*` — token-protected document/index API.
+
+Set `ALLOWED_ORIGINS` to the production HTTPS origin and keep `ADMIN_TOKEN`
+private. The frontend already uses same-origin API routes, so no localhost URL
+needs to be shipped to public visitors.

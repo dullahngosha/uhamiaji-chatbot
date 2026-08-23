@@ -17,6 +17,8 @@ from urllib.parse import unquote
 import numpy as np
 import requests
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.responses import FileResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -42,6 +44,7 @@ allowed = [x.strip() for x in os.getenv(
 ).split(",") if x.strip()]
 
 app = FastAPI(title="Mr. HamaHama RAG API", version="1.0.0")
+app.mount("/assets", StaticFiles(directory=ROOT / "assets"), name="assets")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=allowed,
@@ -71,6 +74,16 @@ class DocumentSettings(BaseModel):
 
 class DocumentTarget(BaseModel):
     filename: str = Field(min_length=1, max_length=240)
+
+
+@app.get("/", include_in_schema=False)
+def chatbot_page() -> FileResponse:
+    return FileResponse(ROOT / "index.html")
+
+
+@app.get("/admin.html", include_in_schema=False)
+def admin_page() -> FileResponse:
+    return FileResponse(ROOT / "admin.html")
 
 
 def require_admin(request: Request) -> None:
@@ -371,3 +384,11 @@ def chat(payload: ChatRequest, request: Request) -> dict:
         raise HTTPException(status_code=503, detail="The local AI service is unavailable.") from exc
     except Exception as exc:
         raise HTTPException(status_code=500, detail="Unable to generate an answer.") from exc
+
+
+@app.get("/{asset_name}", include_in_schema=False)
+def public_asset(asset_name: str) -> FileResponse:
+    allowed_assets = {"embed.js", "widget.css", "admin.js", "admin.css"}
+    if asset_name not in allowed_assets:
+        raise HTTPException(status_code=404, detail="Not found")
+    return FileResponse(ROOT / asset_name)
