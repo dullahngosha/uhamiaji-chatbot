@@ -1,88 +1,68 @@
 (function () {
   'use strict';
-  var script = document.currentScript || (function () {
-    var s = document.getElementsByTagName('script');
-    return s[s.length - 1];
-  })();
-  var base;
-  try {
-    var u = new URL(script.src);
-    base = u.href.replace(/embed\.js.*$/, '');
-  } catch (e) { base = ''; }
-  function loadScript(src, done) {
-    var s = document.createElement('script');
-    s.src = src; s.async = true; s.onload = done;
-    document.head.appendChild(s);
+  var script = document.currentScript;
+  var base = script && script.src ? script.src.replace(/[^/]+$/, '') : './';
+  var endpoint = (script && script.dataset.endpoint) || window.UHAMIAJI_AI_ENDPOINT || '';
+  if (document.getElementById('uhamiaji-ai-panel')) return;
+
+  var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'widget.css'; document.head.appendChild(css);
+  var paths = {
+    chat:'<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/><path d="M8 9h8M8 13h5"/>',
+    close:'<path d="m6 6 12 12M18 6 6 18"/>', minus:'<path d="M5 12h14"/>',
+    send:'<path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/>',
+    doc:'<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/>',
+    info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/>',
+    passport:'<rect x="5" y="3" width="14" height="18" rx="2"/><circle cx="12" cy="11" r="3"/><path d="M9 17h6"/>',
+    permit:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 9h.01M11 9h6M8 13h9"/>',
+    people:'<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>'
+  };
+  function icon(name) { return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + paths[name] + '</svg>'; }
+
+  var ui = {
+    sw:{welcome:'Karibu! Nipo hapa kwa ajili yako.',intro:'Uliza swali kuhusu visa, pasipoti, vibali vya kuishi, uraia au huduma nyingine za Uhamiaji.',placeholder:'Andika swali lako...',online:'Mtandaoni',day:'Leo',auto:'Lugha: Otomatiki',disclaimer:'Taarifa hii ni muhtasari. Thibitisha na Idara ya Uhamiaji Tanzania kabla ya kufanya uamuzi.',notfound:'Sijapata taarifa ya kutosha kuhusu swali hilo. Jaribu kutaja visa, pasipoti, kibali cha kuishi au uraia.',page:'ukurasa',lead:''},
+    en:{welcome:'Welcome! I am here to help.',intro:'Ask about visas, passports, residence permits, citizenship or other immigration services.',placeholder:'Type your question...',online:'Online',day:'Today',auto:'Language: Automatic',disclaimer:'This is a summary. Verify it with the Tanzania Immigration Department before making a decision.',notfound:'I could not find enough information about that question. Try mentioning visa, passport, residence permit or citizenship.',page:'page',lead:''},
+    fr:{welcome:'Bienvenue ! Je suis là pour vous aider.',intro:"Posez une question sur les visas, passeports, permis de séjour ou la citoyenneté.",placeholder:'Écrivez votre question...',online:'En ligne',day:"Aujourd’hui",auto:'Langue : Automatique',disclaimer:"Ceci est un résumé. Vérifiez auprès du Département de l’immigration de Tanzanie.",notfound:"Je n’ai pas trouvé suffisamment d’informations dans les documents.",page:'page',lead:'Selon le document :'},
+    es:{welcome:'¡Bienvenido! Estoy aquí para ayudarle.',intro:'Pregunte sobre visados, pasaportes, permisos de residencia o ciudadanía.',placeholder:'Escriba su pregunta...',online:'En línea',day:'Hoy',auto:'Idioma: Automático',disclaimer:'Este es un resumen. Verifíquelo con el Departamento de Inmigración de Tanzania.',notfound:'No encontré información suficiente en los documentos.',page:'página',lead:'Según el documento:'},
+    de:{welcome:'Willkommen! Ich helfe Ihnen gern.',intro:'Fragen Sie nach Visa, Pässen, Aufenthaltsgenehmigungen oder Staatsbürgerschaft.',placeholder:'Schreiben Sie Ihre Frage...',online:'Online',day:'Heute',auto:'Sprache: Automatisch',disclaimer:'Dies ist eine Zusammenfassung. Bestätigen Sie sie bei der tansanischen Einwanderungsbehörde.',notfound:'Ich habe in den Dokumenten nicht genügend Informationen gefunden.',page:'Seite',lead:'Laut Dokument:'},
+    pt:{welcome:'Bem-vindo! Estou aqui para ajudar.',intro:'Pergunte sobre vistos, passaportes, autorizações de residência ou cidadania.',placeholder:'Escreva a sua pergunta...',online:'Online',day:'Hoje',auto:'Idioma: Automático',disclaimer:'Este é um resumo. Confirme junto ao Departamento de Imigração da Tanzânia.',notfound:'Não encontrei informação suficiente nos documentos.',page:'página',lead:'Segundo o documento:'},
+    it:{welcome:'Benvenuto! Sono qui per aiutarti.',intro:'Chiedi informazioni su visti, passaporti, permessi di soggiorno o cittadinanza.',placeholder:'Scrivi la tua domanda...',online:'Online',day:'Oggi',auto:'Lingua: Automatica',disclaimer:"Questo è un riepilogo. Verificalo con il Dipartimento dell’immigrazione della Tanzania.",notfound:'Non ho trovato informazioni sufficienti nei documenti.',page:'pagina',lead:'Secondo il documento:'},
+    ar:{welcome:'مرحباً! أنا هنا لمساعدتك.',intro:'اسأل عن التأشيرات أو جوازات السفر أو تصاريح الإقامة أو الجنسية.',placeholder:'اكتب سؤالك...',online:'متصل',day:'اليوم',auto:'اللغة: تلقائي',disclaimer:'هذه خلاصة. يرجى التحقق منها لدى إدارة الهجرة في تنزانيا.',notfound:'لم أجد معلومات كافية في الوثائق.',page:'الصفحة',lead:'وفقاً للوثيقة:'},
+    ur:{welcome:'خوش آمدید! میں مدد کے لیے حاضر ہوں۔',intro:'ویزا، پاسپورٹ، رہائشی اجازت نامے یا شہریت کے بارے میں پوچھیں۔',placeholder:'اپنا سوال لکھیں...',online:'آن لائن',day:'آج',auto:'زبان: خودکار',disclaimer:'یہ خلاصہ ہے۔ تنزانیہ امیگریشن ڈیپارٹمنٹ سے تصدیق کریں۔',notfound:'دستاویزات میں کافی معلومات نہیں ملیں۔',page:'صفحہ',lead:'دستاویز کے مطابق:'},
+    hi:{welcome:'स्वागत है! मैं आपकी सहायता के लिए यहाँ हूँ।',intro:'वीज़ा, पासपोर्ट, निवास परमिट या नागरिकता के बारे में पूछें।',placeholder:'अपना प्रश्न लिखें...',online:'ऑनलाइन',day:'आज',auto:'भाषा: स्वचालित',disclaimer:'यह सारांश है। तंज़ानिया आव्रजन विभाग से पुष्टि करें।',notfound:'दस्तावेज़ों में पर्याप्त जानकारी नहीं मिली।',page:'पृष्ठ',lead:'दस्तावेज़ के अनुसार:'},
+    zh:{welcome:'欢迎！我随时为您提供帮助。',intro:'您可以询问签证、护照、居留许可或公民身份。',placeholder:'请输入您的问题...',online:'在线',day:'今天',auto:'语言：自动',disclaimer:'此信息为摘要，请向坦桑尼亚移民局核实。',notfound:'在文件中未找到足够的信息。',page:'页',lead:'根据文件：'},
+    ru:{welcome:'Добро пожаловать! Я готов помочь.',intro:'Спросите о визах, паспортах, видах на жительство или гражданстве.',placeholder:'Введите вопрос...',online:'В сети',day:'Сегодня',auto:'Язык: автоматически',disclaimer:'Это краткое изложение. Уточните информацию в Иммиграционном департаменте Танзании.',notfound:'В документах недостаточно информации.',page:'страница',lead:'Согласно документу:'},
+    tr:{welcome:'Hoş geldiniz! Yardım etmek için buradayım.',intro:'Vize, pasaport, oturma izni veya vatandaşlık hakkında sorun.',placeholder:'Sorunuzu yazın...',online:'Çevrimiçi',day:'Bugün',auto:'Dil: Otomatik',disclaimer:'Bu bir özettir. Tanzanya Göçmenlik Dairesi ile doğrulayın.',notfound:'Belgelerde yeterli bilgi bulamadım.',page:'sayfa',lead:'Belgeye göre:'}
+  };
+  var languageNames={auto:'AUTO',sw:'Kiswahili',en:'English',fr:'Français',es:'Español',de:'Deutsch',pt:'Português',it:'Italiano',ar:'العربية',ur:'اردو',hi:'हिन्दी',zh:'中文',ru:'Русский',tr:'Türkçe'};
+  var panel=document.createElement('section'); panel.className='ua-panel'; panel.id='uhamiaji-ai-panel'; panel.setAttribute('aria-label','Mr. HamaHama immigration chatbot');
+  panel.innerHTML='<header class="ua-head"><div class="ua-mark"><img src="'+base+'assets/idara-ya-uhamiaji-logo.png" alt="Idara ya Uhamiaji Tanzania"></div><div class="ua-title"><strong>Mr. HamaHama</strong><span>Your Immigration Assistant!</span><span class="ua-status"><i></i> <b data-online>Mtandaoni</b></span></div><button class="ua-icon-btn" data-min aria-label="Punguza">'+icon('minus')+'</button><button class="ua-icon-btn" data-close aria-label="Funga">'+icon('close')+'</button></header><div class="ua-lang"><span data-auto>Lugha: Otomatiki</span><select class="ua-lang-select" aria-label="Chagua lugha"></select></div><main class="ua-chat"><div class="ua-welcome"><h2>Karibu! Nipo hapa kwa ajili yako.</h2><p>Uliza swali kuhusu visa, pasipoti, vibali vya kuishi, uraia au huduma nyingine za Uhamiaji.</p></div><div class="ua-actions"><button class="ua-action" data-q="Nieleze kuhusu visa za Tanzania">'+icon('passport')+'Visa</button><button class="ua-action" data-q="Ninaombaje pasipoti ya Tanzania?">'+icon('passport')+'Pasipoti</button><button class="ua-action" data-q="Nahitaji kibali gani cha kuishi?">'+icon('permit')+'Vibali vya kuishi</button><button class="ua-action" data-q="Nieleze kuhusu uraia wa Tanzania">'+icon('people')+'Uraia</button></div><div class="ua-day">Leo</div><div class="ua-messages"></div></main><footer class="ua-compose"><div class="ua-compose-box"><textarea rows="1" placeholder="Andika swali lako..." aria-label="Andika swali lako"></textarea><button class="ua-send" aria-label="Tuma">'+icon('send')+'</button></div><div class="ua-powered">Powered by <b>Ngosha Multimedia</b> · <b>NgoshaChatBot AI</b></div></footer>';
+  var launcher=document.createElement('button'); launcher.className='ua-launcher'; launcher.setAttribute('aria-label','Ask Me! Open Mr. HamaHama'); launcher.innerHTML='<span class="ua-launch-logo"><img src="'+base+'assets/idara-ya-uhamiaji-logo.png" alt=""><i class="ua-notify"></i></span><span class="ua-launch-copy"><strong>Ask Me!</strong><small>Mr. HamaHama</small></span>'+icon('chat');
+  document.body.appendChild(panel); document.body.appendChild(launcher);
+
+  var messages=panel.querySelector('.ua-messages'), chat=panel.querySelector('.ua-chat'), input=panel.querySelector('textarea'), select=panel.querySelector('select'), chosen='auto', activeLang='sw', knowledge=[];
+  Object.keys(languageNames).forEach(function(code){var o=document.createElement('option');o.value=code;o.textContent=languageNames[code];select.appendChild(o)});
+  function detect(text){
+    if(/[\u4e00-\u9fff]/.test(text))return'zh'; if(/[\u0900-\u097f]/.test(text))return'hi'; if(/[\u0400-\u04ff]/.test(text))return'ru';
+    if(/[\u0600-\u06ff]/.test(text))return /[ےکگںھ]/.test(text)?'ur':'ar';
+    var t=(' '+text.toLowerCase()+' '); var tests={sw:[' nini ',' kuhusu ',' naomba ',' nataka ',' pasipoti ',' kibali ',' uraia ',' habari '],fr:[' bonjour ',' visa pour ',' passeport ',' citoyenneté ',' permis de séjour ',' comment '],es:[' hola ',' visado ',' pasaporte ',' ciudadanía ',' permiso ',' cómo '],de:[' hallo ',' visum ',' reisepass ',' aufenthalt ',' wie '],pt:[' olá ',' visto ',' passaporte ',' cidadania ',' como '],it:[' ciao ',' visto ',' passaporto ',' cittadinanza ',' come '],tr:[' merhaba ',' vize ',' pasaport ',' vatandaşlık ',' nasıl ']};
+    var best='en',score=0;Object.keys(tests).forEach(function(code){var s=tests[code].reduce(function(n,w){return n+(t.indexOf(w)>-1?1:0)},0);if(s>score){best=code;score=s}});return best;
   }
-  var css = ['.uhamiaji-btn{position:fixed;right:20px;bottom:20px;width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#0b2545,#1d3c73);border:3px solid #e6b800;color:#fff;cursor:pointer;box-shadow:0 6px 20px rgba(0,0,0,0.25);display:flex;align-items:center;justify-content:center;font-size:26px;z-index:2147483647;animation:uhamiaji-pulse 2s infinite;}','.uhamiaji-btn:hover{transform:scale(1.08);}','@keyframes uhamiaji-pulse{0%,100%{box-shadow:0 6px 20px rgba(0,0,0,0.25),0 0 0 0 rgba(230,184,0,0.5);}50%{box-shadow:0 6px 20px rgba(0,0,0,0.25),0 0 0 12px rgba(230,184,0,0);}}','.uhamiaji-badge{position:absolute;top:-4px;right:-4px;background:#e6b800;color:#0b2545;font-size:10px;font-weight:700;padding:2px 5px;border-radius:10px;}','.uhamiaji-panel{position:fixed;right:20px;bottom:90px;width:360px;max-width:calc(100vw - 40px);height:540px;max-height:calc(100vh - 120px);background:#fff;border-radius:16px;box-shadow:0 16px 50px rgba(0,0,0,0.25);display:none;flex-direction:column;overflow:hidden;z-index:2147483647;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;}','.uhamiaji-panel.open{display:flex;}','.uhamiaji-head{background:linear-gradient(135deg,#0b2545,#1d3c73);color:#fff;padding:14px 16px;display:flex;align-items:center;gap:10px;border-bottom:3px solid #e6b800;}','.uhamiaji-head .ttl{font-weight:700;font-size:14px;flex:1;}','.uhamiaji-head .ttl small{display:block;font-size:10px;opacity:0.75;font-weight:400;margin-top:2px;}','.uhamiaji-head .x{background:transparent;border:0;color:#fff;cursor:pointer;font-size:22px;padding:0 4px;}','.uhamiaji-body{flex:1;overflow-y:auto;padding:12px;background:#f4f7fb;display:flex;flex-direction:column;gap:8px;}','.uhamiaji-msg{max-width:85%;padding:8px 12px;border-radius:14px;font-size:13px;line-height:1.5;}','.uhamiaji-msg.u{align-self:flex-end;background:linear-gradient(135deg,#0b2545,#1d3c73);color:#fff;}','.uhamiaji-msg.b{align-self:flex-start;background:#fff;border:1px solid #e1e5eb;color:#1a1a1a;}','.uhamiaji-msg p{margin:0 0 6px;}','.uhamiaji-msg p:last-child{margin-bottom:0;}','.uhamiaji-msg ul{margin:4px 0 4px 18px;}','.uhamiaji-msg strong{color:#0b2545;}','.uhamiaji-msg table{width:100%;border-collapse:collapse;margin:6px 0;font-size:12px;}','.uhamiaji-msg th{background:#0b2545;color:#fff;padding:4px 6px;text-align:left;}','.uhamiaji-msg td{padding:4px 6px;border-bottom:1px solid #e1e5eb;}','.uhamiaji-sug{padding:6px 12px;display:flex;flex-wrap:wrap;gap:4px;background:#f4f7fb;border-top:1px solid #e1e5eb;}','.uhamiaji-sug span{font-size:11px;padding:4px 10px;background:#fff;border:1px solid #cfd8e3;border-radius:12px;cursor:pointer;color:#0b2545;}','.uhamiaji-sug span:hover{background:#0b2545;color:#fff;}','.uhamiaji-input{display:flex;border-top:1px solid #e1e5eb;background:#fff;}','.uhamiaji-input input{flex:1;border:0;padding:12px 14px;font-size:13px;outline:none;font-family:inherit;}','.uhamiaji-input button{background:#0b2545;color:#fff;border:0;padding:0 18px;cursor:pointer;font-weight:600;font-family:inherit;}','.uhamiaji-foot{text-align:center;font-size:10px;color:#888;padding:4px 6px 6px;background:#fff;}'].join('');
-  var style = document.createElement('style');
-  style.textContent = css;
-  document.head.appendChild(style);
-  function bootUI() {
-    var btn = document.createElement('button');
-    btn.className = 'uhamiaji-btn';
-    btn.innerHTML = '💬<span class="uhamiaji-badge">NEW</span>';
-    var panel = document.createElement('div');
-    panel.className = 'uhamiaji-panel';
-    panel.innerHTML = '<div class="uhamiaji-head"><div class="ttl">Uhamiaji Chatbot<small>Tanzania Immigration · 9 languages</small></div><button class="x">&times;</button></div><div class="uhamiaji-body"></div><div class="uhamiaji-sug"></div><div class="uhamiaji-input"><input type="text" placeholder="Ask in any language…"><button type="button">➤</button></div><div class="uhamiaji-foot">Offline reference · not formal legal advice</div>';
-    document.body.appendChild(btn);
-    document.body.appendChild(panel);
-    var body = panel.querySelector('.uhamiaji-body');
-    var sug = panel.querySelector('.uhamiaji-sug');
-    var inp = panel.querySelector('input');
-    var snd = panel.querySelector('.uhamiaji-input button');
-    var cls = panel.querySelector('.x');
-    function dir(t){ return /[\u0600-\u06ff\u0750-\u077f]/.test(t) ? 'rtl' : 'ltr'; }
-    function add(role, html, txt){
-      var m = document.createElement('div'); m.className = 'uhamiaji-msg ' + role;
-      if (html !== undefined) m.innerHTML = html; else m.textContent = txt;
-      m.setAttribute('dir', dir(m.textContent || ''));
-      body.appendChild(m); body.scrollTop = body.scrollHeight;
-    }
-    function setSug(list){
-      sug.innerHTML = '';
-      (list || []).slice(0,5).forEach(function(q){
-        var s = document.createElement('span'); s.textContent = q;
-        s.addEventListener('click', function(){ ask(q); });
-        sug.appendChild(s);
-      });
-    }
-    function ask(q){
-      if (!q || !q.trim()) return;
-      add('u', undefined, q);
-      inp.value = '';
-      var r = window.UhamiajiChatbot.ask(q);
-      add('b', r.answer);
-      setSug(r.suggestions);
-    }
-    btn.addEventListener('click', function(){
-      panel.classList.add('open'); btn.style.display = 'none';
-      if (body.children.length === 0) {
-        var intro = window.UhamiajiChatbot.intro('en');
-        add('b', intro.answer); setSug(intro.suggestions);
-      }
-      setTimeout(function(){ inp.focus(); }, 200);
-    });
-    cls.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); panel.classList.remove('open'); btn.style.display='flex'; return false; });
-    snd.addEventListener('click', function(e){ e.preventDefault(); e.stopPropagation(); ask(inp.value); return false; });
-    inp.addEventListener('keydown', function(e){
-      if (e.key === 'Enter' || e.keyCode === 13 || e.which === 13) {
-        e.preventDefault(); e.stopPropagation(); e.stopImmediatePropagation();
-        ask(inp.value);
-        return false;
-      }
-    });
-    inp.addEventListener('keypress', function(e){
-      if (e.key === 'Enter' || e.keyCode === 13 || e.which === 13) {
-        e.preventDefault(); e.stopPropagation();
-        return false;
-      }
-    });
+  function setLanguage(code){activeLang=ui[code]?code:'en';var l=ui[activeLang];panel.dir=(activeLang==='ar'||activeLang==='ur')?'rtl':'ltr';panel.querySelector('.ua-welcome h2').textContent=l.welcome;panel.querySelector('.ua-welcome p').textContent=l.intro;panel.querySelector('[data-online]').textContent=l.online;panel.querySelector('[data-auto]').textContent=chosen==='auto'?l.auto:languageNames[activeLang];panel.querySelector('.ua-day').textContent=l.day;input.placeholder=l.placeholder;input.setAttribute('lang',activeLang)}
+  select.addEventListener('change',function(){chosen=select.value;if(chosen!=='auto')setLanguage(chosen);else setLanguage(activeLang)});
+  var norm=function(t){return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\u00c0-\u024f ]/g,' ')};
+  var stop={na:1,ya:1,wa:1,za:1,ni:1,kwa:1,kuhusu:1,nini:1,how:1,the:1,and:1,for:1,what:1,about:1};
+  function search(q){var terms=norm(q).split(/\s+/).filter(function(x){return x.length>2&&!stop[x]});return knowledge.map(function(c){var hay=norm(c.document+' '+c.category+' '+c.text),score=terms.reduce(function(s,t){return s+(hay.split(t).length-1)},0);return{c:c,score:score}}).filter(function(x){return x.score>0}).sort(function(a,b){return b.score-a.score})[0]}
+  function concise(text){var s=(text||'').replace(/\s+/g,' ').trim(),sentences=s.match(/[^.!?]+[.!?]+/g)||[s];return sentences.slice(0,3).join(' ').slice(0,560)}
+  async function answer(q){
+    var hit=search(q), local=hit?{text:concise(hit.c.text),source:hit.c.document,page:hit.c.page}:{text:ui[activeLang].notfound,source:'CLIENT SERVICE CHARTER.pdf',page:1};
+    if(!endpoint)return local;
+    try{var res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,language:activeLang,context:hit?hit.c:null})});if(!res.ok)throw new Error('request failed');var data=await res.json();return{text:data.answer||data.message||local.text,source:data.source||local.source,page:data.page||local.page}}catch(e){return local}
   }
-  loadScript(base + 'knowledge.js', function () {
-    loadScript(base + 'engine.js', function () {
-      if (document.body) bootUI();
-      else document.addEventListener('DOMContentLoaded', bootUI);
-    });
-  });
+  async function add(q){
+    q=(q||'').trim();if(!q)return;if(chosen==='auto')setLanguage(detect(q));messages.insertAdjacentHTML('beforeend','<div class="ua-message user"></div>');messages.lastElementChild.textContent=q;input.value='';var typing=document.createElement('div');typing.className='ua-typing';typing.innerHTML='<i></i><i></i><i></i>';messages.appendChild(typing);chat.scrollTop=chat.scrollHeight;
+    var a=await answer(q);typing.remove();var box=document.createElement('div');box.className='ua-message bot ua-answer';box.innerHTML='<p></p>';box.querySelector('p').textContent=a.text;messages.appendChild(box);var note=document.createElement('div');note.className='ua-disclaimer';note.innerHTML=icon('info')+'<span></span>';note.querySelector('span').textContent=ui[activeLang].disclaimer;messages.appendChild(note);chat.scrollTop=chat.scrollHeight;
+  }
+  function toggle(show){panel.hidden=!show;launcher.style.display=show?'none':'flex';if(show)setTimeout(function(){input.focus()},50)}
+  launcher.onclick=function(){toggle(true)};panel.querySelector('[data-close]').onclick=function(){toggle(false)};panel.querySelector('[data-min]').onclick=function(){toggle(false)};panel.querySelector('.ua-send').onclick=function(){add(input.value)};input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();add(input.value)}});panel.querySelectorAll('.ua-action').forEach(function(b){b.onclick=function(){add(b.dataset.q)}});
+  fetch(base+'data/knowledge-base.json').then(function(r){return r.json()}).then(function(d){knowledge=d}).catch(function(){});setLanguage('sw');toggle(script&&script.dataset.open==='true');
 })();
