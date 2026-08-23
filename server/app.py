@@ -27,6 +27,7 @@ DATA = ROOT / "data"
 OLLAMA_BASE = os.getenv("OLLAMA_BASE_URL", "http://127.0.0.1:11434")
 CHAT_MODEL = os.getenv("CHAT_MODEL", "gemma3:12b")
 EMBED_MODEL = os.getenv("EMBED_MODEL", "qwen3-embedding:0.6b")
+FAST_CHAT_MODEL = CHAT_MODEL == "qwen3:0.6b"
 TOP_K = int(os.getenv("RAG_TOP_K", "8"))
 MIN_SCORE = float(os.getenv("RAG_MIN_SCORE", "0.50"))
 MAX_REQUESTS_PER_MINUTE = int(os.getenv("RATE_LIMIT_PER_MINUTE", "30"))
@@ -369,7 +370,7 @@ def chat(payload: ChatRequest, request: Request) -> dict:
                 "stream": False,
                 "think": False,
                 "keep_alive": "15m",
-                "options": {"temperature": 0.10, "top_p": 0.80, "num_ctx": 8192, "num_predict": 600},
+                "options": {"temperature": 0.10, "top_p": 0.80, "num_ctx": 4096 if FAST_CHAT_MODEL else 8192, "num_predict": 320 if FAST_CHAT_MODEL else 600},
             },
             timeout=600,
         )

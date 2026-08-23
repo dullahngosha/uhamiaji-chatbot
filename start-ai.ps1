@@ -12,7 +12,7 @@ if (-not (Test-Path -LiteralPath $tokenPath)) {
 $env:ADMIN_TOKEN = Get-Content -Raw -LiteralPath $tokenPath
 if (-not $env:CHAT_MODEL) {
     $installedModels = (& ollama list 2>$null | Out-String)
-    $env:CHAT_MODEL = if ($installedModels -match '(?m)^qwen3:8b\s') { 'qwen3:8b' } else { 'gemma3:12b' }
+    $env:CHAT_MODEL = if ($installedModels -match '(?m)^qwen3:8b\s') { 'qwen3:8b' } elseif ($installedModels -match '(?m)^qwen3:0\.6b\s') { 'qwen3:0.6b' } else { 'gemma3:12b' }
 }
 
 Write-Host 'Starting Mr. HamaHama local AI API...' -ForegroundColor Cyan

@@ -4,6 +4,8 @@
   var base = script && script.src ? script.src.replace(/[^/]+$/, '') : './';
   var endpoint = (script && script.dataset.endpoint) || window.UHAMIAJI_AI_ENDPOINT || '';
   if(endpoint==='auto')endpoint=location.port==='8099'?'http://127.0.0.1:8765/api/chat':location.origin+'/api/chat';
+  var offlineMode=!!(script&&script.dataset.offline==='true');
+  if(!endpoint&&!offlineMode&&/^https?:$/.test(location.protocol))endpoint=location.origin+'/api/chat';
   if (document.getElementById('uhamiaji-ai-panel')) return;
 
   var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'widget.css'; document.head.appendChild(css);
@@ -67,5 +69,5 @@
   function greet(){if(greeted)return;greeted=true;var l=ui[activeLang]||ui.en;var hello=document.createElement('div');hello.className='ua-message bot ua-answer ua-greeting';hello.textContent=l.welcome+' '+l.intro;messages.appendChild(hello);chat.scrollTop=chat.scrollHeight}
   function toggle(show){panel.hidden=!show;launcher.style.display=show?'none':'flex';if(show){greet();setTimeout(function(){input.focus()},50)}}
   launcher.onclick=function(){toggle(true)};panel.querySelector('[data-close]').onclick=function(){toggle(false)};panel.querySelector('[data-min]').onclick=function(){toggle(false)};panel.querySelector('.ua-send').onclick=function(){add(input.value)};input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();add(input.value)}});panel.querySelectorAll('.ua-action').forEach(function(b){b.onclick=function(){add(b.dataset.q)}});
-  if(!endpoint)fetch(base+'data/knowledge-base.json').then(function(r){return r.json()}).then(function(d){knowledge=d}).catch(function(){});var browserLang=((navigator.language||'sw').split('-')[0]||'sw').toLowerCase();setLanguage(browserLang);toggle(script&&script.dataset.open==='true');
+  if(offlineMode)fetch(base+'data/knowledge-base.json').then(function(r){return r.json()}).then(function(d){knowledge=d}).catch(function(){});var browserLang=((navigator.language||'sw').split('-')[0]||'sw').toLowerCase();setLanguage(browserLang);toggle(script&&script.dataset.open==='true');
 })();
