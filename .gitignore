@@ -3,3 +3,4 @@ implementation-desktop.png
 __pycache__/
 *.pyc
 data/embeddings.npy
+.local/

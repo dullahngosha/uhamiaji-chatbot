@@ -80,3 +80,22 @@ For public production use, expose the API only through an HTTPS reverse proxy
 or authenticated tunnel, set `ALLOWED_ORIGINS` to the real website origin, and
 replace the localhost endpoint with the public HTTPS API URL. The binary vector
 index stays local and is intentionally excluded from Git.
+
+## Manage chatbot documents
+
+Start the AI API with `start-ai.ps1`, serve this folder over HTTP, then open:
+
+```text
+http://127.0.0.1:8080/admin.html
+```
+
+Enter the admin token shown by `start-ai.ps1`. The admin page can:
+
+- upload PDF documents;
+- activate or deactivate a document;
+- set or clear an expiry date;
+- permanently delete a document;
+- rebuild and reload the search index without stopping chat requests.
+
+Expired and inactive documents are automatically excluded the next time the
+index is rebuilt. Keep `.local/admin-token.txt` private; it is ignored by Git.

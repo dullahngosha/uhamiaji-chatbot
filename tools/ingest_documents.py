@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import re
+from datetime import date
 from pathlib import Path
 
 from pypdf import PdfReader
@@ -33,9 +34,16 @@ def category(name: str) -> str:
 
 def main() -> None:
     DATA.mkdir(exist_ok=True)
+    registry_path = DATA / "document-registry.json"
+    registry = json.loads(registry_path.read_text(encoding="utf-8")) if registry_path.exists() else {}
     documents, chunks = [], []
     for path in sorted(DOCS.glob("*.pdf")):
-        item = {"id": path.stem.lower().replace(" ", "-")[:80], "title": path.name, "category": category(path.name), "pages": 0, "size": path.stat().st_size}
+        settings = registry.setdefault(path.name, {"active": True, "expires_on": ""})
+        expired = bool(settings.get("expires_on") and settings["expires_on"] < date.today().isoformat())
+        item = {"id": path.stem.lower().replace(" ", "-")[:80], "title": path.name, "category": category(path.name), "pages": 0, "size": path.stat().st_size, "active": bool(settings.get("active", True)), "expires_on": settings.get("expires_on", ""), "expired": expired}
+        if not item["active"] or expired:
+            documents.append(item)
+            continue
         try:
             reader = PdfReader(str(path))
             item["pages"] = len(reader.pages)
@@ -66,6 +74,7 @@ def main() -> None:
         documents.append(item)
     (DATA / "documents.json").write_text(json.dumps(documents, ensure_ascii=False, indent=2), encoding="utf-8")
     (DATA / "knowledge-base.json").write_text(json.dumps(chunks, ensure_ascii=False), encoding="utf-8")
+    registry_path.write_text(json.dumps(registry, ensure_ascii=False, indent=2), encoding="utf-8")
     print(f"Indexed {len(documents)} documents into {len(chunks)} searchable chunks")
 
 

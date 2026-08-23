@@ -19,3 +19,9 @@
 @keyframes ua-online{0%{box-shadow:0 0 0 0 #34cc8566}65%,100%{box-shadow:0 0 0 7px #34cc8500}}
 @media(max-width:560px){.ua-panel{inset:0;width:100%;height:100dvh;max-height:none;border:0;border-radius:0}.ua-launcher{right:14px;bottom:14px;width:210px;height:62px}.ua-launch-logo{width:48px;height:48px}.ua-launch-logo img{width:43px;height:43px}.ua-head{border-radius:0}.ua-actions{gap:5px}.ua-action{font-size:9px}.ua-panel:not([hidden])~.ua-launcher{display:none}}
 @media(prefers-reduced-motion:reduce){.ua-panel,.ua-launcher,.ua-message,.ua-status i{animation:none}.ua-launcher,.ua-launch-logo,.ua-launcher>svg,.ua-action,.ua-action svg,.ua-send,.ua-send svg,.ua-icon-btn{transition:none}.ua-launcher::before,.ua-launcher::after{display:none}.ua-typing i{animation:none}}
+
+/* Requested gold launcher hover state. */
+.ua-launcher:hover{background:var(--ua-gold);color:var(--ua-navy)}
+.ua-launch-copy strong,.ua-launch-copy small{transition:color .2s ease}
+.ua-launcher:hover .ua-launch-copy strong,.ua-launcher:hover .ua-launch-copy small{color:var(--ua-navy)}
+.ua-launcher:hover>svg{color:var(--ua-navy)}

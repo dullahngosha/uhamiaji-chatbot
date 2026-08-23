@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#071d49">
+  <title>Mr. HamaHama — Document Administration</title>
+  <link rel="stylesheet" href="admin.css">
+</head>
+<body>
+  <header class="admin-head">
+    <div class="admin-brand"><img src="assets/idara-ya-uhamiaji-logo.png" alt="Idara ya Uhamiaji Tanzania"><div><strong>Mr. HamaHama</strong><span>Document Administration</span></div></div>
+    <div class="system-state"><i></i><span>Local AI</span><b id="systemStatus">Inaunganisha...</b></div>
+  </header>
+
+  <main class="admin-main">
+    <section class="title-row">
+      <div><p>KNOWLEDGE CONTROL</p><h1>Nyaraka za Uhamiaji</h1><span>Pakia, simamia muda wa matumizi na jenga upya maarifa ya chatbot.</span></div>
+      <button class="primary" id="rebuildBtn"><svg viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 4v7h-7"/></svg>Jenga index mpya</button>
+    </section>
+
+    <section class="index-strip">
+      <div class="index-orbit"><span></span></div>
+      <div><small>HALI YA KNOWLEDGE INDEX</small><strong id="indexMessage">Inakaguliwa...</strong></div>
+      <dl><div><dt>Nyaraka</dt><dd id="docTotal">—</dd></div><div><dt>Active</dt><dd id="activeTotal">—</dd></div><div><dt>Expired</dt><dd id="expiredTotal">—</dd></div><div><dt>Chunks</dt><dd id="chunkTotal">—</dd></div></dl>
+    </section>
+
+    <section class="upload-panel">
+      <div class="upload-copy"><span class="upload-icon"><svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></svg></span><div><h2>Pakia waraka mpya</h2><p>PDF itaongezwa baada ya index kujengwa upya.</p></div></div>
+      <label class="file-field"><input type="file" id="fileInput" accept="application/pdf"><span id="fileLabel">Chagua PDF</span></label>
+      <label class="date-field"><span>Ina-expire</span><input type="date" id="uploadExpiry"></label>
+      <button class="upload-btn" id="uploadBtn" disabled>Pakia</button>
+    </section>
+
+    <section class="document-section">
+      <div class="table-head"><div><h2>Nyaraka zilizopo</h2><p>Mabadiliko yataanza kutumika baada ya kubofya “Jenga index mpya”.</p></div><label class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg><input id="searchInput" placeholder="Tafuta waraka..."></label></div>
+      <div class="table-wrap"><table><thead><tr><th>Waraka</th><th>Ukubwa</th><th>Chunks</th><th>Ina-expire</th><th>Status</th><th><span class="sr-only">Vitendo</span></th></tr></thead><tbody id="docRows"></tbody></table></div>
+      <div class="empty" id="emptyState" hidden>Hakuna waraka unaolingana na utafutaji wako.</div>
+    </section>
+  </main>
+
+  <dialog id="loginDialog"><form method="dialog" id="loginForm"><img src="assets/idara-ya-uhamiaji-logo.png" alt=""><h2>Admin access</h2><p>Ingiza token iliyoonyeshwa na <code>start-ai.ps1</code>.</p><label>Admin token<input id="tokenInput" type="password" autocomplete="current-password" required></label><span class="login-error" id="loginError"></span><button value="login">Fungua document manager</button></form></dialog>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="admin.js"></script>
+</body>
+</html>

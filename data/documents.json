@@ -4,77 +4,110 @@
     "title": "APPLICATION FOR BUSINESS PASS.pdf",
     "category": "Visa na kuingia",
     "pages": 1,
-    "size": 125622
+    "size": 125622,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "application-for-naturalisation-as-a-citizen-of-tanzania-of-a-minor-child",
     "title": "APPLICATION FOR NATURALISATION AS A CITIZEN OF TANZANIA OF A MINOR CHILD.pdf",
     "category": "Uraia",
     "pages": 4,
-    "size": 1139372
+    "size": 1139372,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "application-for-naturalisation-as-a-citizen-of-tanzania",
     "title": "APPLICATION FOR NATURALISATION AS A CITIZEN OF TANZANIA.pdf",
     "category": "Uraia",
     "pages": 4,
-    "size": 1042821
+    "size": 1042821,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "application-for-special-pass-for-east-african-community-partner",
     "title": "APPLICATION FOR SPECIAL PASS FOR EAST AFRICAN COMMUNITY PARTNER.pdf",
     "category": "Visa na kuingia",
     "pages": 2,
-    "size": 131507
+    "size": 131507,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "brochure-e-passport",
     "title": "BROCHURE E-PASSPORT.pdf",
     "category": "Pasipoti",
     "pages": 2,
-    "size": 132180
+    "size": 132180,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "brochure-residence-permit",
     "title": "BROCHURE RESIDENCE PERMIT.pdf",
     "category": "Vibali",
     "pages": 2,
-    "size": 200946
+    "size": 200946,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "brochure-uraia",
     "title": "BROCHURE URAIA.pdf",
     "category": "Uraia",
     "pages": 2,
-    "size": 1193454
+    "size": 1193454,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "brochure-wahamiaji-haramu",
     "title": "BROCHURE WAHAMIAJI HARAMU.pdf",
     "category": "Sheria na ulinzi",
     "pages": 2,
-    "size": 1165097
+    "size": 1165097,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "client-service-charter",
     "title": "CLIENT SERVICE CHARTER.pdf",
     "category": "Huduma nyingine",
     "pages": 13,
-    "size": 480309
+    "size": 480309,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "declaration-concerning-citizenship",
     "title": "DECLARATION CONCERNING CITIZENSHIP.pdf",
     "category": "Uraia",
     "pages": 2,
-    "size": 27658
+    "size": 27658,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "declaration-concerning-residence",
     "title": "DECLARATION CONCERNING RESIDENCE.pdf",
     "category": "Vibali",
     "pages": 1,
-    "size": 226202
+    "size": 226202,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "dependant-pass-application",
@@ -82,6 +115,9 @@
     "category": "Vibali",
     "pages": 0,
     "size": 1568364,
+    "active": true,
+    "expires_on": "",
+    "expired": false,
     "reader": "pymupdf-fallback"
   },
   {
@@ -89,125 +125,179 @@
     "title": "DEPENDENT PASS UPDATE INFORMATION FORM.pdf",
     "category": "Vibali",
     "pages": 2,
-    "size": 248383
+    "size": 248383,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "e-visa-brochure",
     "title": "e-VISA BROCHURE.pdf",
     "category": "Visa na kuingia",
     "pages": 2,
-    "size": 130543
+    "size": 130543,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "entry-declaration-form--arrival",
     "title": "ENTRY DECLARATION FORM -ARRIVAL.pdf",
     "category": "Visa na kuingia",
     "pages": 1,
-    "size": 135723
+    "size": 135723,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "exemption-update-information-form-(1)",
     "title": "EXEMPTION UPDATE INFORMATION FORM (1).pdf",
     "category": "Vibali",
     "pages": 2,
-    "size": 253936
+    "size": 253936,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "exemption-update-information-form",
     "title": "EXEMPTION UPDATE INFORMATION FORM.pdf",
     "category": "Vibali",
     "pages": 2,
-    "size": 253936
+    "size": 253936,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "mwongozo-wa-huduma-ya-pasipoti-na-hati-za-kusafiria",
     "title": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
     "category": "Pasipoti",
     "pages": 12,
-    "size": 132452
+    "size": 132452,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "naturalization-for-married-woman",
     "title": "NATURALIZATION FOR MARRIED WOMAN.pdf",
     "category": "Uraia",
     "pages": 2,
-    "size": 28149
+    "size": 28149,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "residence-permit--guidelines",
     "title": "RESIDENCE PERMIT  GUIDELINES.pdf",
     "category": "Vibali",
     "pages": 15,
-    "size": 164134
+    "size": 164134,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "residence-permit-security-bond-(1)",
     "title": "RESIDENCE PERMIT SECURITY BOND (1).pdf",
     "category": "Vibali",
     "pages": 1,
-    "size": 17510
+    "size": 17510,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "residence-permit-security-bond",
     "title": "RESIDENCE PERMIT SECURITY BOND.pdf",
     "category": "Vibali",
     "pages": 1,
-    "size": 17510
+    "size": 17510,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "residence-permit-update-information-form",
     "title": "RESIDENCE PERMIT UPDATE INFORMATION FORM.pdf",
     "category": "Vibali",
     "pages": 2,
-    "size": 256602
+    "size": 256602,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "return-on-employment-of-non-citizen_",
     "title": "RETURN ON EMPLOYMENT OF NON CITIZEN_.pdf",
     "category": "Vibali",
     "pages": 2,
-    "size": 65438
+    "size": 65438,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "tanzania-passports-and-travel-documents-act,-r.e-2023",
     "title": "TANZANIA PASSPORTS AND TRAVEL DOCUMENTS ACT, R.E 2023.pdf",
     "category": "Pasipoti",
     "pages": 16,
-    "size": 599909
+    "size": 599909,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "the-non-citizens-(employment-regulation)-act",
     "title": "THE NON-CITIZENS (EMPLOYMENT REGULATION) ACT.pdf",
     "category": "Vibali",
     "pages": 20,
-    "size": 624544
+    "size": 624544,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "the-refugees-act",
     "title": "THE REFUGEES ACT.pdf",
     "category": "Sheria na ulinzi",
     "pages": 32,
-    "size": 703787
+    "size": 703787,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "the-tanzania-citizenship-act",
     "title": "THE TANZANIA CITIZENSHIP ACT.pdf",
     "category": "Uraia",
     "pages": 26,
-    "size": 650425
+    "size": 650425,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "visa-application-form",
     "title": "VISA APPLICATION FORM.pdf",
     "category": "Visa na kuingia",
     "pages": 1,
-    "size": 572504
+    "size": 572504,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   },
   {
     "id": "visa-guidelines",
     "title": "VISA GUIDELINES.pdf",
     "category": "Visa na kuingia",
     "pages": 12,
-    "size": 423394
+    "size": 423394,
+    "active": true,
+    "expires_on": "",
+    "expired": false
   }
 ]
