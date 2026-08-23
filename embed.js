@@ -50,7 +50,7 @@
     var best='en',score=0;Object.keys(tests).forEach(function(code){var s=tests[code].reduce(function(n,w){return n+(t.indexOf(w)>-1?1:0)},0);if(s>score){best=code;score=s}});return best;
   }
   function setLanguage(code){activeLang=code||'en';var l=ui[activeLang]||ui.en;panel.dir=(activeLang==='ar'||activeLang==='ur'||activeLang==='he')?'rtl':'ltr';panel.querySelector('.ua-welcome h2').textContent=l.welcome;panel.querySelector('.ua-welcome p').textContent=l.intro;panel.querySelector('[data-online]').textContent=l.online;panel.querySelector('.ua-day').textContent=l.day;input.placeholder=l.placeholder;input.setAttribute('lang',activeLang)}
-  var norm=function(t){return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\u00c0-\u024f ]/g,' ')};
+  var norm=function(t){return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\u00c0-\u024f ]/g,' ').replace(/\bviza\b/g,'visa')};
   var stop={na:1,ya:1,wa:1,za:1,ni:1,kwa:1,kuhusu:1,nini:1,how:1,the:1,and:1,for:1,what:1,about:1};
   function search(q){var terms=norm(q).split(/\s+/).filter(function(x){return x.length>2&&!stop[x]});return knowledge.map(function(c){var hay=norm(c.document+' '+c.category+' '+c.text),score=terms.reduce(function(s,t){return s+(hay.split(t).length-1)},0);return{c:c,score:score}}).filter(function(x){return x.score>0}).sort(function(a,b){return b.score-a.score})[0]}
   function concise(text){var s=(text||'').replace(/\s+/g,' ').trim(),sentences=s.match(/[^.!?]+[.!?]+/g)||[s];return sentences.slice(0,3).join(' ').slice(0,560)}

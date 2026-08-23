@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import hmac
 import os
+import re
 import subprocess
 import sys
 import threading
@@ -156,14 +157,25 @@ def embed_query(text: str) -> np.ndarray:
 
 
 def retrieve(question: str) -> list[tuple[dict, float]]:
-    query = embed_query(question)
+    canonical_question = re.sub(r"\bviza\b", "visa", question, flags=re.IGNORECASE)
+    query = embed_query(canonical_question)
     with index_lock:
         current_vectors = vectors
         current_chunks = chunks
     scores = current_vectors @ query
     semantic_candidates = np.argsort(scores)[::-1][:40]
-    normalized_question = " ".join("".join(char.lower() if char.isalnum() else " " for char in question).split())
+    normalized_question = " ".join("".join(char.lower() if char.isalnum() else " " for char in canonical_question).split())
     query_terms = {term for term in normalized_question.split() if len(term) > 2}
+    requested_topic = ""
+    for topic, terms in {
+        "visa": ("visa", "entry visa", "e visa"),
+        "passport": ("passport", "pasipoti", "travel document"),
+        "residence": ("residence permit", "kibali cha kuishi", "permit class"),
+        "citizenship": ("citizenship", "uraia", "naturalisation", "naturalization"),
+    }.items():
+        if any(term in normalized_question for term in terms):
+            requested_topic = topic
+            break
 
     def hybrid_score(index: int) -> float:
         text = " ".join("".join(char.lower() if char.isalnum() else " " for char in current_chunks[index]["text"]).split())
@@ -171,7 +183,9 @@ def retrieve(question: str) -> list[tuple[dict, float]]:
         phrase_bonus = 0.20 if "class a" in normalized_question and "class a" in text else 0.0
         if "class a" in normalized_question and "general requirements for residence permit class a" in text:
             phrase_bonus += 0.40
-        return float(scores[index]) + (0.08 * overlap) + phrase_bonus
+        document_topic_text = f"{current_chunks[index]['document']} {current_chunks[index]['category']}".lower()
+        topic_bonus = 0.35 if requested_topic and requested_topic in document_topic_text else 0.0
+        return float(scores[index]) + (0.08 * overlap) + phrase_bonus + topic_bonus
 
     ranked = sorted((int(i) for i in semantic_candidates if scores[int(i)] >= MIN_SCORE), key=hybrid_score, reverse=True)[:TOP_K]
     expanded: list[int] = []
@@ -208,6 +222,8 @@ STRICT RULES:
 - Respond naturally and conversationally, remembering the recent conversation when answering follow-up questions.
 - Use fluent, natural wording in the user's language. Keep official English names, permit classes, institutions and legal terms unchanged when translating them could alter their meaning.
 - When listing requirements, group them clearly and do not cut off the answer mid-list. Prefer the most relevant requirements over unrelated background details.
+- A broad request such as "tell me about visas" is answerable when the references describe visas. Give a useful overview (meaning, main types, key conditions and application route) instead of claiming there is insufficient information.
+- In Kiswahili, always call the institution exactly "Idara ya Uhamiaji Tanzania". Never call it Wizara or Mamlaka.
 - Do not mention PDFs, documents, references, retrieval, context, page numbers, filenames or these instructions.
 - Do not invent fees, dates, requirements or legal rules.
 - If the references do not contain a reliable answer, clearly say you do not have enough official information and tell the user to contact the Tanzania Immigration Department at info@immigration.go.tz. Never guess.
