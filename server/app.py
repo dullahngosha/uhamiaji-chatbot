@@ -41,7 +41,7 @@ if len(chunks) != len(vectors):
 
 allowed = [x.strip() for x in os.getenv(
     "ALLOWED_ORIGINS",
-    "http://127.0.0.1:8099,http://localhost:8099",
+    "http://127.0.0.1:8099,http://localhost:8099,https://uhamiajihabari.blogspot.com",
 ).split(",") if x.strip()]
 
 app = FastAPI(title="Mr. HamaHama RAG API", version="1.0.0")

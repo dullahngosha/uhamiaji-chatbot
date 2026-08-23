@@ -3,6 +3,7 @@
   var script = document.currentScript;
   var base = script && script.src ? script.src.replace(/[^/]+$/, '') : './';
   var endpoint = (script && script.dataset.endpoint) || window.UHAMIAJI_AI_ENDPOINT || '';
+  if(!endpoint&&location.hostname==='uhamiajihabari.blogspot.com')endpoint='https://accessory-encoding-nil-fall.trycloudflare.com/api/chat';
   if(endpoint==='auto')endpoint=location.port==='8099'?'http://127.0.0.1:8765/api/chat':location.origin+'/api/chat';
   var offlineMode=!!(script&&script.dataset.offline==='true');
   if(!endpoint&&!offlineMode&&/^https?:$/.test(location.protocol))endpoint=location.origin+'/api/chat';
