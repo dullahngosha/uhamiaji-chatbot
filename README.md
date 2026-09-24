@@ -2,6 +2,14 @@
 
 Embeddable Tanzania Immigration document assistant, powered by Ngosha Multimedia and NgoshaChatBot AI.
 
+## Hostinger (PHP, bila LLM)
+
+Kifurushi cha Hostinger kipo kwenye [`hostinger/`](hostinger/WEKA-HOSTINGER.md). Hiki ni toleo la FAQ tofauti na server ya Python/Ollama iliyoelezwa chini. GitHub huhifadhi code tu; haisakinishi au kuwasha PHP kwenye Hostinger yenyewe.
+
+Mpangilio wa hosting ni `public_html/chat/` kwa API na widget, na `hamahama-private/` sambamba na `public_html` kwa engine na FAQ. **Usiweke `hamahama-private` ndani ya `public_html`.** Soma hatua za kupakia kwenye [`WEKA-HOSTINGER.md`](hostinger/WEKA-HOSTINGER.md). Kisha weka script iliyo katika [`EMBED-CODE.html`](hostinger/EMBED-CODE.html) kwenye template ya pages zote.
+
+`https://ngosha.com/chat/` hurudisha JSON ya service kwa makusudi; si ukurasa wa chat. Hakiki `POST https://ngosha.com/chat/api.php` inarudisha jibu la swali kabla ya kuiweka widget hadharani. Jibu la `503` linaonyesha tatizo la server, kwa mfano private folder kukosekana au kutoweza kuandikwa kwa rate state; usihitimishe imekamilika kwa kuona JSON pekee.
+
 ## Unified local app
 
 Start the AI server once:

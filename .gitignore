@@ -4,3 +4,4 @@ __pycache__/
 *.pyc
 data/embeddings.npy
 .local/
+hostinger/hamahama-private/rate-state.json
