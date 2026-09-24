@@ -2,10 +2,6 @@
   'use strict';
   var script = document.currentScript;
   var base = script && script.src ? script.src.replace(/[^/]+$/, '') : './';
-  var endpoint = (script && script.dataset.endpoint) || window.UHAMIAJI_AI_ENDPOINT || '';
-  if(endpoint==='auto')endpoint=new URL('api.php',base).href;
-  var offlineMode=!!(script&&script.dataset.offline==='true');
-  if(!endpoint&&!offlineMode&&/^https?:$/.test(location.protocol))endpoint=new URL('api.php',base).href;
   if (document.getElementById('uhamiaji-ai-panel')) return;
 
   var css = document.createElement('link'); css.rel = 'stylesheet'; css.href = base + 'widget.css?v=hostinger1'; document.head.appendChild(css);
@@ -41,22 +37,30 @@
   var launcher=document.createElement('button'); launcher.className='ua-launcher'; launcher.setAttribute('aria-label','Ask Me! Open Mr. HamaHama'); launcher.innerHTML='<span class="ua-launch-logo"><img src="'+base+'assets/mr-hamahama.png" alt=""><i class="ua-notify"></i></span><span class="ua-launch-copy"><strong>Ask Me!</strong><small>Mr. HamaHama</small></span>'+icon('chat');
   document.body.appendChild(panel); document.body.appendChild(launcher);
 
-  var messages=panel.querySelector('.ua-messages'), chat=panel.querySelector('.ua-chat'), input=panel.querySelector('textarea'), activeLang='sw', knowledge=[], greeted=false, conversation=[];
+  var messages=panel.querySelector('.ua-messages'), chat=panel.querySelector('.ua-chat'), input=panel.querySelector('textarea'), activeLang='sw', greeted=false, conversation=[];
+  var faqPromise=fetch(base+'faq-data.json').then(function(response){if(!response.ok)throw new Error('FAQ unavailable');return response.json()}).then(function(items){if(!Array.isArray(items))throw new Error('Invalid FAQ');return items}).catch(function(){return null});
   function detect(text){
     if(/[\u3040-\u30ff]/.test(text))return'ja'; if(/[\uac00-\ud7af]/.test(text))return'ko'; if(/[\u4e00-\u9fff]/.test(text))return'zh';
     if(/[\u0900-\u097f]/.test(text))return'hi'; if(/[\u0980-\u09ff]/.test(text))return'bn'; if(/[\u0b80-\u0bff]/.test(text))return'ta'; if(/[\u0c00-\u0c7f]/.test(text))return'te'; if(/[\u0a80-\u0aff]/.test(text))return'gu'; if(/[\u0a00-\u0a7f]/.test(text))return'pa';
     if(/[\u0400-\u04ff]/.test(text))return'ru'; if(/[\u0370-\u03ff]/.test(text))return'el'; if(/[\u0590-\u05ff]/.test(text))return'he'; if(/[\u0e00-\u0e7f]/.test(text))return'th'; if(/[\u1200-\u137f]/.test(text))return'am';
     if(/[\u0600-\u06ff]/.test(text))return /[Û’Ú©Ú¯ÚºÚ¾]/.test(text)?'ur':'ar';
-    if(/\b(nani|gani|ni ya|kwa nini|inahitajika|nahitaji)\b/i.test(text))return'sw';
+    if(/\b(nani|gani|ni ya|kwa nini|inahitajika|nahitaji|gharama|ada|bei|yake|masharti|viambato)\b/i.test(text))return'sw';
     var t=(' '+text.toLowerCase()+' '); var tests={sw:[' nini ',' kuhusu ',' naomba ',' nataka ',' pasipoti ',' kibali ',' uraia ',' habari '],fr:[' bonjour ',' visa pour ',' passeport ',' citoyennetÃ© ',' permis de sÃ©jour ',' comment '],es:[' hola ',' visado ',' pasaporte ',' ciudadanÃ­a ',' permiso ',' cÃ³mo '],de:[' hallo ',' visum ',' reisepass ',' aufenthalt ',' wie '],pt:[' olÃ¡ ',' visto ',' passaporte ',' cidadania ',' como '],it:[' ciao ',' visto ',' passaporto ',' cittadinanza ',' come '],tr:[' merhaba ',' vize ',' pasaport ',' vatandaÅŸlÄ±k ',' nasÄ±l ']};
     tests.nl=[' hallo ',' visum ',' paspoort ',' verblijf ',' hoe '];tests.pl=[' witam ',' wiza ',' paszport ',' obywatelstwo ',' jak '];tests.id=[' halo ',' visa ',' paspor ',' izin tinggal ',' bagaimana '];tests.ms=[' hai ',' visa ',' pasport ',' permit tinggal ',' bagaimana '];tests.vi=[' xin chÃ o ',' thá»‹ thá»±c ',' há»™ chiáº¿u ',' cÆ° trÃº ',' nhÆ° tháº¿ nÃ o '];
     var best='en',score=0;Object.keys(tests).forEach(function(code){var s=tests[code].reduce(function(n,w){return n+(t.indexOf(w)>-1?1:0)},0);if(s>score){best=code;score=s}});return best;
   }
   function setLanguage(code){activeLang=code||'en';var l=ui[activeLang]||ui.en;panel.dir=(activeLang==='ar'||activeLang==='ur'||activeLang==='he')?'rtl':'ltr';panel.querySelector('.ua-welcome h2').textContent=l.welcome;panel.querySelector('.ua-welcome p').textContent=l.intro;panel.querySelector('[data-online]').textContent=l.online;panel.querySelector('.ua-day').textContent=l.day;input.placeholder=l.placeholder;input.setAttribute('lang',activeLang);localizeActions()}
-  var norm=function(t){return (t||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9\u00c0-\u024f ]/g,' ').replace(/\bviza\b/g,'visa')};
-  var stop={na:1,ya:1,wa:1,za:1,ni:1,kwa:1,kuhusu:1,nini:1,how:1,the:1,and:1,for:1,what:1,about:1};
-  function search(q){var terms=norm(q).split(/\s+/).filter(function(x){return x.length>2&&!stop[x]});return knowledge.map(function(c){var hay=norm(c.document+' '+c.category+' '+c.text),score=terms.reduce(function(s,t){return s+(hay.split(t).length-1)},0);return{c:c,score:score}}).filter(function(x){return x.score>0}).sort(function(a,b){return b.score-a.score})[0]}
-  function concise(text){var s=(text||'').replace(/\s+/g,' ').trim(),sentences=s.match(/[^.!?]+[.!?]+/g)||[s];return sentences.slice(0,3).join(' ').slice(0,560)}
+  var stop={na:1,ya:1,wa:1,za:1,vya:1,yangu:1,ni:1,kwa:1,kuhusu:1,nini:1,how:1,the:1,and:1,for:1,what:1,about:1,do:1,can:1,please:1,my:1,to:1,i:1,a:1};
+  function words(text){return (text||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/[a-z]+/g)?.map(function(word){return ({viza:'visa',visas:'visa',pasipoti:'passport',passports:'passport',ninataka:'nataka',nahitaji:'nataka',naomba:'nataka',ninaomba:'nataka'}[word]||word)}).filter(function(word){return !stop[word]})||[]}
+  function topic(text){if(/\b(pasipoti|passport|passports)\b/i.test(text))return'passport';if(/\b(visa|viza|visas)\b/i.test(text))return'visa';if(/\b(residence|permit|kibali|vibali)\b/i.test(text))return'residence';if(/\b(citizenship|uraia)\b/i.test(text))return'citizenship';return''}
+  function matchFaq(question,items){
+    var query=[...new Set(words(question))],askedTopic=topic(question);
+    if(query.length<2)return null;
+    var ranked=items.filter(function(item){return item.status==='source_checked'&&(!askedTopic||item.topic===askedTopic)}).map(function(item){
+      var best=0;item.questions.forEach(function(alias){var candidate=[...new Set(words(alias))],overlap=query.filter(function(word){return candidate.includes(word)}).length;if(overlap>=2)best=Math.max(best,2*overlap/(query.length+candidate.length))});return {item:item,score:best}
+    }).sort(function(a,b){return b.score-a.score});
+    return ranked.length&&ranked[0].score>=0.68&&(!ranked[1]||ranked[0].score-ranked[1].score>=0.08)?ranked[0].item:null
+  }
 
   var passportPictures=[
     {file:'passport-ordinary.png',sw:'Pasipoti ya Kawaida',en:'Ordinary Passport',match:/\b(ordinary|kawaida)\b/i},
@@ -94,9 +98,14 @@
   }
   async function answer(q){
     if(passportSelection(q).length===3 && /\b(aina|types?|picha|pictures?|onyesha|show)\b/i.test(q) && !/\b(ada|fee|cost|requirements|masharti)\b/i.test(q))return {text:activeLang==='sw'?'Aina hizi tatu ni Pasipoti ya Kawaida, Pasipoti ya Kidiplomasia na Pasipoti ya Utumishi. Bofya picha yoyote kuikuza.':'These three types are the Ordinary Passport, Diplomatic Passport and Service Passport. Select an image to enlarge it.'};
-    var locale=ui[activeLang]||ui.en,hit=search(q), local=hit?{text:concise(hit.c.text),source:hit.c.document,page:hit.c.page}:{text:locale.notfound+' info@immigration.go.tz',source:'',page:0};
-    if(!endpoint)return local;
-    try{var opts={signal:AbortSignal.timeout(20000),method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:q,language:activeLang,history:conversation.slice(-8)})};var res=await fetch(endpoint,opts);if(!res.ok&&res.status>=500){await new Promise(function(resolve){setTimeout(resolve,800)});res=await fetch(endpoint,opts)}if(res.status===429)return{text:activeLang==='sw'?'Maswali yamezidi kiwango cha muda huu. Tafadhali subiri dakika moja ujaribu tena.':'Too many requests. Please wait one minute and try again.'};if(!res.ok)throw new Error('request failed: '+res.status);var data=await res.json();return{text:data.answer||data.message||local.text}}catch(e){return{text:activeLang==='sw'?'Samahani, huduma ya AI haijaunganishwa kwa sasa. Tafadhali jaribu tena au wasiliana na Idara ya Uhamiaji Tanzania kupitia info@immigration.go.tz.':'Sorry, the AI service is not connected right now. Please try again or contact the Tanzania Immigration Department at info@immigration.go.tz.'}}
+    var sw=activeLang==='sw',knownTopic=topic(q);
+    if(/^(hello|hi|hey|habari|hujambo|mambo)(\s+mkuu)?[!. ]*$/i.test(q))return{text:sw?'Karibu! Mimi ni Mr. HamaHama. Nikusaidie kuhusu huduma gani ya Uhamiaji?':'Welcome! I am Mr. HamaHama. Which immigration service can I help you with?'};
+    if(/\b(ada|gharama|bei|fee|fees|cost|price)\b/i.test(q))return{text:sw?'Ada zinahitaji uthibitisho wa sasa. Tafadhali wasiliana na info@immigration.go.tz na utaje huduma unayoomba.':'Fees need current confirmation. Please contact info@immigration.go.tz and specify the service you are applying for.'};
+    if(!knownTopic&&/\b(yake|its|it|masharti|requirements|viambato)\b/i.test(q)){for(var i=conversation.length-1;i>=0;i--){if(conversation[i].role==='user'&&(knownTopic=topic(conversation[i].content)))break}}
+    var items=await faqPromise;if(!items)return{text:sw?'Taarifa za majibu hazijapakiwa kwa sasa. Tafadhali jaribu tena au wasiliana na info@immigration.go.tz.':'The answer data could not load. Please try again or contact info@immigration.go.tz.'};
+    var entry=matchFaq(q,items);if(!entry&&knownTopic&&/\b(yake|its|it|masharti|requirements|viambato)\b/i.test(q))entry=matchFaq(knownTopic+' '+q,items);if(entry)return{text:entry.answers[sw?'sw':'en']};
+    if(knownTopic==='visa')return{text:sw?'Unaulizia kuomba visa, kufuatilia ombi au masharti gani? Nieleze kidogo zaidi. Kwa msaada zaidi: info@immigration.go.tz.':'Are you asking about applying, tracking or particular visa requirements? Please tell me more. Further help: info@immigration.go.tz.'};
+    return{text:sw?'Sina jibu lililohakikiwa kwa swali hilo bado. Tafadhali eleza zaidi au wasiliana na Idara ya Uhamiaji kupitia info@immigration.go.tz.':'I do not yet have a verified answer for that question. Please give more detail or contact the Tanzania Immigration Department at info@immigration.go.tz.'}
   }
   async function add(q){
     q=(q||'').trim();if(!q)return;setLanguage(detect(q));messages.insertAdjacentHTML('beforeend','<div class="ua-message user"></div>');messages.lastElementChild.textContent=q;input.value='';var typing=document.createElement('div');typing.className='ua-typing';typing.setAttribute('role','status');typing.setAttribute('aria-live','polite');typing.setAttribute('aria-label','Mr. HamaHama anaandika');typing.innerHTML='<span class="ua-typing-avatar" aria-hidden="true"><img src="'+base+'assets/mr-hamahama.png" alt=""></span><span class="ua-typing-label">Mr. HamaHama anaandika</span><span class="ua-typing-dots" aria-hidden="true"><i></i><i></i><i></i></span>';var label=activeLang==='sw'?'Mr. HamaHama anaandika':'Mr. HamaHama is typing';typing.setAttribute('aria-label',label);typing.querySelector('.ua-typing-label').textContent=label;messages.appendChild(typing);chat.scrollTop=chat.scrollHeight;
@@ -105,5 +114,5 @@
   function greet(){if(greeted)return;greeted=true;var l=ui[activeLang]||ui.en;var hello=document.createElement('div');hello.className='ua-message bot ua-answer ua-greeting';hello.textContent=l.welcome+' '+l.intro;messages.appendChild(hello);chat.scrollTop=chat.scrollHeight}
   function toggle(show){panel.hidden=!show;launcher.style.display=show?'none':'flex';if(show){greet();setTimeout(function(){input.focus()},50)}}
   launcher.onclick=function(){toggle(true)};panel.querySelector('[data-close]').onclick=function(){toggle(false)};panel.querySelector('[data-min]').onclick=function(){toggle(false)};panel.querySelector('.ua-send').onclick=function(){add(input.value)};input.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();add(input.value)}});panel.querySelectorAll('.ua-action').forEach(function(b){b.onclick=function(){add(b.dataset.q)}});
-  if(offlineMode)fetch(base+'data/knowledge-base.json').then(function(r){return r.json()}).then(function(d){knowledge=d}).catch(function(){});var browserLang=((navigator.language||'sw').split('-')[0]||'sw').toLowerCase();setLanguage(browserLang);toggle(script&&script.dataset.open==='true');
+  var browserLang=((navigator.language||'sw').split('-')[0]||'sw').toLowerCase();setLanguage(browserLang);toggle(script&&script.dataset.open==='true');
 })();
