@@ -62,9 +62,9 @@ function start(script) {
       related: 'Maswali yanayohusiana', helpful: 'Je, jibu hili limekusaidia?',
       thanks: 'Asante kwa maoni yako!', sorry: 'Samahani. Kwa msaada zaidi wasiliana na info@immigration.go.tz.',
       suggest: 'Nimepata maswali haya yanayokaribiana na swali lako. Chagua moja:',
-      docsLead: 'Kwa mujibu wa', readSection: 'Soma kifungu kizima', otherSections: 'Vifungu vingine vinavyohusiana',
-      docsNote: 'Haya ni maneno halisi ya nyaraka rasmi; sheria nyingi zimeandikwa kwa Kiingereza. Kwa kesi yako binafsi, thibitisha na Idara ya Uhamiaji.',
-      fromLaw: 'Kutoka kwenye sheria', notfound: 'Sijapata jibu lililohakikiwa kwa swali hilo. Chagua huduma hapa chini au wasiliana na info@immigration.go.tz.',
+      readSection: 'Soma maelezo kamili', otherSections: 'Maelezo mengine yanayohusiana',
+      docsNote: 'Kwa kesi yako binafsi, thibitisha na Idara ya Uhamiaji.',
+      fromLaw: 'Maelezo yanayohusiana', notfound: 'Sijapata jibu lililohakikiwa kwa swali hilo. Chagua huduma hapa chini au wasiliana na info@immigration.go.tz.',
       greet: 'Karibu sana! Nikusaidie kuhusu huduma gani?', typing: 'Mr. HamaHama anaandika',
       disclaimer: 'Taarifa hizi ni muhtasari wa miongozo rasmi. Thibitisha na Idara ya Uhamiaji kabla ya kufanya uamuzi.',
       lawsEmpty: 'Sheria bado hazijapakiwa kwenye chatbot. (Msimamizi: endesha tools/build_kb.py.)',
@@ -81,9 +81,9 @@ function start(script) {
       related: 'Related questions', helpful: 'Was this answer helpful?',
       thanks: 'Thank you for your feedback!', sorry: 'Sorry about that. For more help contact info@immigration.go.tz.',
       suggest: 'I found these questions close to yours. Choose one:',
-      docsLead: 'According to', readSection: 'Read the full section', otherSections: 'Other related sections',
-      docsNote: 'These are the exact words of the official documents. For your personal case, confirm with the Immigration Department.',
-      fromLaw: 'From the law', notfound: 'I do not have a verified answer for that. Choose a service below or contact info@immigration.go.tz.',
+      readSection: 'Read the full explanation', otherSections: 'Other related information',
+      docsNote: 'For your personal case, confirm with the Immigration Department.',
+      fromLaw: 'Related information', notfound: 'I do not have a verified answer for that. Choose a service below or contact info@immigration.go.tz.',
       greet: 'You are welcome! Which service can I help you with?', typing: 'Mr. HamaHama is typing',
       disclaimer: 'This is a summary of official guidelines. Confirm with the Immigration Department before making a decision.',
       lawsEmpty: 'Laws have not been loaded into the chatbot yet. (Admin: run tools/build_kb.py.)',
@@ -326,12 +326,16 @@ function start(script) {
       law.sections.forEach(function (s) {
         s._tok = tokens((s.title || '') + ' ' + (s.text || '').slice(0, 1500)); // kichujio cha orodha ya vifungu
         var text = s.text || '';
-        var parts = [];
-        for (var i = 0; i < text.length; i += 1600) parts.push(text.slice(Math.max(0, i - 200), i + 1600));
-        if (!parts.length) parts.push('');
-        parts.forEach(function (part) {
+        // gawa maandishi marefu kwenye mipaka ya aya (si katikati ya neno)
+        var parts = [], buf = '';
+        text.split('\n').forEach(function (para) {
+          if (buf && buf.length + para.length > 1600) { parts.push(buf); buf = ''; }
+          buf += (buf ? '\n' : '') + para;
+        });
+        parts.push(buf);
+        parts.forEach(function (part, pi) {
           var toks = dtokens((s.title || '') + ' ' + (s.title || '') + ' ' + part);
-          var d = { law: law, s: s, text: part, len: Math.max(1, toks.length), tf: {} };
+          var d = { law: law, s: s, text: part, part: pi, len: Math.max(1, toks.length), tf: {} };
           toks.forEach(function (t) { d.tf[t] = (d.tf[t] || 0) + 1; });
           var idx = docs.push(d) - 1;
           Object.keys(d.tf).forEach(function (t) { (postings[t] = postings[t] || []).push(idx); });
@@ -388,7 +392,8 @@ function start(script) {
       var titleHit = groups.filter(function (g) { return Object.keys(g).some(function (t) { return tt[t]; }); }).length;
       var boost = 1 + 0.8 * (groups.length ? titleHit / groups.length : 0);
       if (wantsFee && isTable(d.text)) boost *= 1.6;
-      boost *= Math.pow(d.law.priority || 1, wantsFee ? 3 : 1); // ada: majedwali safi ya tovuti rasmi kwanza
+      boost *= Math.pow(d.law.priority || 1, wantsFee ? 3 : 1);
+      boost /= 1 + 0.2 * (d.part || 0); // sehemu ya kwanza ya kifungu huwa na kanuni kuu // ada: majedwali safi ya tovuti rasmi kwanza
       return { d: d, score: scores[i] * prior * boost, coverage: groups.length ? hit / groups.length : 0 };
     }).sort(function (a, b) { return b.score - a.score; }).slice(0, k || 5);
   }
@@ -617,13 +622,6 @@ function start(script) {
         });
         card.appendChild(lk);
       }
-      if (f.source) {
-        var src = el('div', 'hh-source');
-        var pages = (f.source.pages || []).join(', ');
-        src.innerHTML = icon('doc') + '<span></span>';
-        src.lastChild.textContent = t('source') + ': ' + f.source.document.replace(/\.pdf$/i, '').replace(/\s+/g, ' ') + (pages ? ' · ' + t('page') + ' ' + pages : '');
-        card.appendChild(src);
-      }
       card.appendChild(feedback(f.id));
       m.appendChild(card);
 
@@ -747,11 +745,11 @@ function start(script) {
   }
 
   function showSection(law, s) {
-    userSay((s.no ? t('section') + ' ' + s.no + ' — ' : '') + law.title);
+    userSay(niceTitle(s.title));
     typing(function () {
       var m = botSay();
       var card = el('div', 'hh-card hh-law');
-      card.appendChild(el('h4', 'hh-card-q', (s.no ? t('section') + ' ' + s.no + '. ' : '') + (s.title || '')));
+      card.appendChild(el('h4', 'hh-card-q', niceTitle(s.title)));
       var body = el('div', 'hh-law-text');
       var text = s.text || '';
       var LIMIT = 1100;
@@ -762,13 +760,9 @@ function start(script) {
         more.firstChild.textContent = t('readMore');
         card.appendChild(more);
       }
-      var src = el('div', 'hh-source');
-      src.innerHTML = icon('doc') + '<span></span>';
-      src.lastChild.textContent = t('source') + ': ' + law.title + (s.page ? ' · ' + t('page') + ' ' + s.page : '');
-      card.appendChild(src);
       m.appendChild(card);
       m.appendChild(chipRow([
-        { label: law.title, icon: 'back', cls: 'hh-nav', go: function () { openLaw(law); } },
+        { label: t('back'), icon: 'back', cls: 'hh-nav', go: function () { openLaw(law); } },
         { label: t('home'), icon: 'home', cls: 'hh-nav', go: showHome }
       ], 'hh-navrow'));
       scroll(m);
@@ -776,14 +770,19 @@ function start(script) {
   }
 
   /* ---------- Jibu kutoka kwenye nyaraka ---------- */
+  // Kichwa safi cha kuonyesha: bila namba za mwongozo ("2.1", "(2)") na herufi kubwa zote
+  function niceTitle(title) {
+    var x = (title || '').replace(/^\d+(\.\d+)*\.?\s+/, '').replace(/\s*\(\d+\)$/, '').trim();
+    if (x === x.toUpperCase()) x = x.charAt(0) + x.slice(1).toLowerCase();
+    return x.slice(0, 90);
+  }
   function sectionLinks(heading, hits) {
     var wrap = el('div');
     wrap.appendChild(el('h4', 'hh-h', heading));
     var box = el('div', 'hh-qlist');
     hits.forEach(function (h) {
-      var b = button('hh-q', '<span></span><small></small>' + icon('next'), function () { showSection(h.d.law, h.d.s); });
-      b.firstChild.textContent = (h.d.s.no ? t('section') + ' ' + h.d.s.no + ': ' : '') + (h.d.s.title || '').slice(0, 80);
-      b.children[1].textContent = h.d.law.title;
+      var b = button('hh-q', '<span></span>' + icon('next'), function () { showSection(h.d.law, h.d.s); });
+      b.firstChild.textContent = niceTitle(h.d.s.title);
       box.appendChild(b);
     });
     wrap.appendChild(box);
@@ -792,10 +791,6 @@ function start(script) {
   function showDocsAnswer(ans, faqRes) {
     var m = botSay(), card = el('div', 'hh-card hh-docs');
     var d = ans.top.d;
-    var lead = el('div', 'hh-docs-lead');
-    lead.innerHTML = icon('law') + '<span></span>';
-    lead.lastChild.textContent = t('docsLead') + ' ' + lawRef(d.law, d.s) + ':';
-    card.appendChild(lead);
     var quote = el('blockquote', 'hh-quote');
     ans.picks.forEach(function (p) {
       var para = el('p');
@@ -804,19 +799,12 @@ function start(script) {
     });
     card.appendChild(quote);
     if (ans.second) {
-      var d2 = ans.second.d, lead2 = el('div', 'hh-docs-lead');
-      lead2.innerHTML = icon('law') + '<span></span>';
-      lead2.lastChild.textContent = lawRef(d2.law, d2.s) + ':';
-      card.appendChild(lead2);
+      var d2 = ans.second.d;
       var q2 = el('blockquote', 'hh-quote');
       tableLines(d2.text).forEach(function (p) { var para = el('p'); highlight(p.text, ans.groups, para); q2.appendChild(para); });
       card.appendChild(q2);
     }
     card.appendChild(chipRow([{ label: t('readSection'), icon: 'doc', go: function () { showSection(d.law, d.s); } }]));
-    var src = el('div', 'hh-source');
-    src.innerHTML = icon('doc') + '<span></span>';
-    src.lastChild.textContent = t('source') + ': ' + (d.law.file || d.law.title) + (d.s.page ? ' · ' + t('page') + ' ' + d.s.page : '');
-    card.appendChild(src);
     var note = el('p', 'hh-note');
     note.innerHTML = icon('info') + '<span></span>';
     note.lastChild.textContent = t('docsNote');
@@ -871,9 +859,8 @@ function start(script) {
           m.appendChild(el('h4', 'hh-h', t('fromLaw')));
           var box = el('div', 'hh-qlist');
           lawHits.forEach(function (h) {
-            var b = button('hh-q', '<span></span><small></small>' + icon('next'), function () { showSection(h.law, h.s); });
-            b.firstChild.textContent = (h.s.no ? t('section') + ' ' + h.s.no + ': ' : '') + (h.s.title || '').slice(0, 80);
-            b.children[1].textContent = h.law.title;
+            var b = button('hh-q', '<span></span>' + icon('next'), function () { showSection(h.law, h.s); });
+            b.firstChild.textContent = niceTitle(h.s.title);
             box.appendChild(b);
           });
           m.appendChild(box);
