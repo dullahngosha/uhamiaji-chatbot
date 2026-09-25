@@ -18,29 +18,41 @@ Mtumiaji anabofya **Mada**, kisha **Swali**, kisha anapata **Jibu** lenye hatua,
 | `data/sheria.json` | Vifungu vya sheria, kanuni na miongozo, vinavyotengenezwa na `tools/build_kb.py` |
 | `tools/build_kb.py` | Inageuza PDF/DOCX/TXT kuwa `sheria.json` na kuunganisha FAQ kutoka CSV |
 | `tools/faq_template.csv` | Kiolezo cha kuongeza maswali mapya kwa Excel |
-| `JENGA_SHERIA.bat` | Double-click: inageuza folda ya sheria kuwa `data/sheria.json` |
+| `JENGA_SHERIA.bat` | Double-click: inapakua nyaraka rasmi na kuzigeuza, pamoja na sheria zako, kuwa `data/sheria.json` |
+| `tools/fetch_official.py` | Inapakua sheria, miongozo, brochures na kurasa za huduma kutoka immigration.go.tz |
 | `index.html` | Ukurasa wa majaribio |
 
-## 1. Kuweka sheria zako (kwenye kompyuta yako ya Windows)
+## 1. Data ya sheria na miongozo (`data/sheria.json`)
 
-**Njia rahisi:** double-click `JENGA_SHERIA.bat`. Litasoma `Desktop\SHERIA ZA UHAMIAJI` (na `Desktop\hamahama` kama ipo), kisha kuandika `data\sheria.json`. Linahitaji Python iliyosakinishwa.
+Chatbot tayari ina nyaraka rasmi zilizopakuliwa kutoka **immigration.go.tz**:
 
-Njia ya mkono:
+- **Sheria:** Tanzania Citizenship Act, Tanzania Passports and Travel Documents Act (R.E. 2023), Refugees Act, na Non-Citizens (Employment Regulation) Act.
+- **Miongozo:** Mwongozo wa Huduma ya Pasipoti na Hati za Safari, na Visa Guidelines.
+- **Brochures:** Uraia, e-Passport, Residence Permit, e-Visa, na Wahamiaji Haramu.
+- **Kurasa za huduma za tovuti:** aina za visa, majedwali ya ada (visa, pasipoti, vibali, passes), madaraja ya vibali A/B/C, uraia, passes, na mengine.
+
+**Kusasisha au kuongeza sheria zako:** double-click `JENGA_SHERIA.bat`. Inafanya hatua mbili:
+
+1. Inapakua upya nyaraka rasmi kutoka immigration.go.tz na kuziweka kwenye folda `rasmi/` (folda hii haipandi GitHub).
+2. Inasoma `rasmi/`, `Desktop\SHERIA ZA UHAMIAJI` na `Desktop\hamahama`, inaruka faili zinazojirudia au zinazofanana, kisha inaandika `data\sheria.json`.
+
+Baada ya hapo, fanya commit na push ya `data/sheria.json`. Hatua hii inahitaji Python iliyosakinishwa.
+
+Kila kitu kinaweza pia kufanywa kwa mkono:
 
 ```powershell
 pip install pypdf python-docx
-cd uhamiaji-chatbot
-python tools\build_kb.py "C:\Users\ABDALLAH MAJID NASSOR\Desktop\hamahama" "C:\Users\ABDALLAH MAJID NASSOR\Desktop\SHERIA ZA UHAMIAJI"
+python tools\fetch_official.py
+python tools\build_kb.py rasmi "C:\Users\ABDALLAH MAJID NASSOR\Desktop\SHERIA ZA UHAMIAJI"
 ```
 
-Zana hii:
+`build_kb.py` inafanya kazi hizi:
 
-- inasoma folda **zote** ulizotaja, pamoja na folda ndogo zilizo ndani yake;
-- **inaruka nakala**, iwe faili linalofanana kabisa au linalofanana kwa ≥85% (`--similar 0.9` kubadilisha kiwango hicho). Kwa faili zinazofanana, inabakiza toleo refu zaidi;
-- inaeleza kila faili ililoruka na sababu, mfano "PDF ya picha, inahitaji OCR";
-- inagawa kila sheria katika **vifungu** (`12.-(1) ...`, `Section 12`, `Kifungu cha 12`) pamoja na kichwa chake na Sehemu (PART) yake. Miongozo isiyo na nambari za vifungu inagawanywa kwa vichwa vyake.
-
-Kagua `data/sheria.json`, kisha fanya commit. Kwenye chatbot, vifungu vitaonekana chini ya **Sheria na Kanuni** na kwenye matokeo ya utafutaji ("Kutoka kwenye sheria").
+- inasoma PDF, DOCX, TXT na MD, na kuruka README, fomu tupu za kujaza, na folda za mfumo (`tools`, `data`, `assets`);
+- **inaruka nakala**, iwe faili linalofanana kabisa au linalofanana kwa ≥85% (`--similar 0.9` kubadilisha kiwango hicho);
+- kwa **sheria (Acts):** inatumia vichwa vya "Arrangement of Sections", inaondoa vichwa na miguu ya kurasa pamoja na maelezo ya pembeni, na inaunganisha mistari iliyokatwa na PDF;
+- kwa **miongozo na brochures:** inagawa kwa vichwa, mfano "2.1 PASIPOTI YA KAWAIDA";
+- inaeleza kila faili ililoruka na sababu, mfano "PDF ya picha, inahitaji OCR".
 
 > PDF zilizochanganuliwa (scanned) hazina maandishi. Zipitishe kwanza kwenye OCR (mfano Adobe Acrobat → "Recognize Text") kisha endesha zana tena.
 
