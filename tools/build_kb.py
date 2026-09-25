@@ -287,7 +287,7 @@ def slug(s):
 
 # ---------------------------------------------------------------- FAQ CSV import
 def import_faq_csv(csv_path, kb_path):
-    """CSV yenye safu: id, topic, swali_sw, question_en, jibu_sw, answer_en,
+    """CSV yenye safu: id, topic, kikundi_sw, group_en, swali_sw, question_en, jibu_sw, answer_en,
     hatua_sw, steps_en (hatua zitenganishwe kwa |), aliases (|), document, pages (mf. 3|4)."""
     with open(kb_path, encoding="utf-8") as fh:
         kb = json.load(fh)
@@ -301,6 +301,7 @@ def import_faq_csv(csv_path, kb_path):
             split = lambda v: [x.strip() for x in v.split("|") if x.strip()]
             entry = {
                 "id": row["id"], "topic": row["topic"],
+                "group": {"sw": row.get("kikundi_sw", ""), "en": row.get("group_en", "") or row.get("kikundi_sw", "")},
                 "q": {"sw": row.get("swali_sw", ""), "en": row.get("question_en", "") or row.get("swali_sw", "")},
                 "aliases": split(row.get("aliases", "")),
                 "answer": {

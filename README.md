@@ -1,21 +1,17 @@
-# Mr. HamaHama v2: chatbot ya Uhamiaji inayojibu kwa kubofya
+# Mr. HamaHama v3 — msaidizi wa Uhamiaji Tanzania
 
-Mtumiaji anabofya **Mada**, kisha **Swali**, kisha anapata **Jibu** lenye hatua, viungo na chanzo (hati + ukurasa). Pia anaweza kuandika swali kwa maneno yake. **Hakuna AI, API wala gharama ya kila swali.** Chatbot yenyewe inasoma sheria ndani ya browser na kujibu kwa maneno halisi ya nyaraka, kwa hivyo haibuni jibu lolote.
+Mtumiaji anabofya **fungu** (Pasipoti, Visa, Vibali vya Ukaazi, Pasi, Uraia, Mjue Jirani Yako, Huduma Nyingine). Kila fungu hufunguka kwenye ukurasa wake, na maswali yamepangwa kwa **vikundi** (mf. Kuomba, Ada na malipo, Kupotea). Akibofya swali anapata **jibu** kwenye block yake: hatua, orodha, tahadhari na viungo. Anaweza pia kuandika swali lake kwa Kiswahili au Kiingereza, nayo chatbot hulitafuta kwa visawe vya lugha zote mbili na mizizi ya maneno ya Kiswahili.
 
-### Jinsi inavyojibu swali lililoandikwa
-
-1. **FAQ iliyohakikiwa** (`knowledge.json`): swali likilingana na FAQ, jibu lenye hatua linaonyeshwa, pamoja na vifungu vya sheria vinavyohusiana.
-2. **Kusoma sheria** (`sheria.json`): injini ya BM25 inatafuta kifungu kinachohusika zaidi, kisha inachagua sentensi 1–3 zinazojibu swali na kuweka alama (highlight) kwenye maneno husika. Inaonyesha pia "Kwa mujibu wa Sheria X, Kifungu Y", kitufe cha "Soma kifungu kizima" na vifungu vingine vinavyohusiana.
-   - Swali la Kiswahili hutafutwa pia kwa Kiingereza kupitia kamusi ya visawe iliyo ndani ya `embed.js` (`SYN`): pasipoti↔passport, adhabu↔penalty/fine, kufukuzwa↔deportation/removal, na kadhalika. Pia inatambua viambishi vya Kiswahili, kwa mfano "nikiingia" → ingia → entry.
-   - Unaweza kuongeza maneno kwenye `SYN` kila unapoona swali ambalo halikupata jibu.
-3. Kama hakuna kilichofanana vya kutosha, bot hupendekeza maswali yanayokaribiana au mada za kuchagua. Haitoi jibu la kubuni.
+- **Majibu 106** yameandaliwa kutoka kwenye Sheria ya Uraia (Sura 357), Sheria ya Pasipoti na Hati za Safari (R.E. 2023), Sheria ya Wakimbizi, Sheria ya Ajira kwa Wageni, miongozo ya Pasipoti na Visa, brochures za Uhamiaji na tovuti rasmi ya immigration.go.tz. Yote yako kwenye `data/knowledge.json`.
+- Hakuna AI, API wala gharama ya kila swali; chatbot inafanya kazi kwenye GitHub Pages pekee.
+- `data/sheria.json` (maandishi ya sheria) hutumika na msimamizi kuandaa na kuhakiki majibu; widget haiyaonyeshi moja kwa moja.
 
 | Faili | Kazi |
 |---|---|
-| `embed.js` | Widget nzima pamoja na injini ya kusoma sheria (JavaScript tupu, haitumii maktaba yoyote) |
+| `embed.js` | Widget nzima: mafungu, vikundi, majibu na utafutaji wa Kiswahili/Kiingereza (JavaScript tupu, haitumii maktaba yoyote) |
 | `widget.css` | Muonekano: navy + dhahabu, mistari ya bendera, na simu (fullscreen) |
-| `data/knowledge.json` | Maswali na majibu yaliyohakikiwa (FAQ) katika Kiswahili na Kiingereza |
-| `data/sheria.json` | Vifungu vya sheria, kanuni na miongozo, vinavyotengenezwa na `tools/build_kb.py` |
+| `data/knowledge.json` | Mafungu 7 na maswali/majibu 106 (Kiswahili na Kiingereza), yamepangwa kwa vikundi |
+| `data/sheria.json` | Maandishi ya sheria na miongozo (rejea ya msimamizi), yanayotengenezwa na `tools/build_kb.py` |
 | `tools/build_kb.py` | Inageuza PDF/DOCX/TXT kuwa `sheria.json` na kuunganisha FAQ kutoka CSV |
 | `tools/faq_template.csv` | Kiolezo cha kuongeza maswali mapya kwa Excel |
 | `JENGA_SHERIA.bat` | Double-click: inapakua nyaraka rasmi na kuzigeuza, pamoja na sheria zako, kuwa `data/sheria.json` |

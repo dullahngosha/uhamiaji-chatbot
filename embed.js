@@ -1,7 +1,7 @@
 /*!
- * Mr. HamaHama v2 — chatbot ya Uhamiaji Tanzania inayoongozwa kwa kubofya.
- * Majibu yote yanatoka data/knowledge.json (FAQ zilizohakikiwa) na data/sheria.json
- * (vifungu vya sheria vilivyotolewa na tools/build_kb.py). Haibuni jibu lolote.
+ * Mr. HamaHama v3 — msaidizi wa Uhamiaji Tanzania: mafungu -> vikundi -> maswali -> majibu.
+ * Majibu yote yako kwenye data/knowledge.json, yameandaliwa kutoka kwenye sheria, miongozo
+ * na tovuti rasmi ya Idara ya Uhamiaji. Maswali ya kuandika hutafutwa kwa Kiswahili na Kiingereza.
  */
 (function () {
   'use strict';
@@ -19,8 +19,7 @@ function start(script) {
   var base = script && script.src ? script.src.replace(/[^/]+$/, '') : './';
   var cfg = (script && script.dataset) || {};
   var KB_URL = cfg.kb || base + 'data/knowledge.json';
-  var LAWS_URL = cfg.laws || base + 'data/sheria.json';
-  var VERSION = '2.0.0';
+  var VERSION = '3.0.0';
 
   var css = document.createElement('link');
   css.rel = 'stylesheet';
@@ -42,10 +41,12 @@ function start(script) {
     visa: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
     permit: '<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M8 9h.01M11 9h6M8 13h9"/>',
     people: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>',
-    law: '<path d="M12 3v18M5 21h14M6 7h12M6 7l-3 7a3 3 0 0 0 6 0zM18 7l-3 7a3 3 0 0 0 6 0z"/>',
+    pass: '<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/>',
+    shield: '<path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z"/><circle cx="12" cy="11" r="2.5"/><path d="M8.5 16.5a4 4 0 0 1 7 0"/>',
     up: '<path d="M7 10v11M15 5.9 14 10h5.8a2 2 0 0 1 2 2.3l-1.4 7A2 2 0 0 1 18.4 21H7V10l4-8a2.9 2.9 0 0 1 4 3.9z"/>',
     down: '<path d="M17 14V3M9 18.1 10 14H4.2a2 2 0 0 1-2-2.3l1.4-7A2 2 0 0 1 5.6 3H17v11l-4 8a2.9 2.9 0 0 1-4-3.9z"/>',
-    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>'
+    search: '<circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/>',
+    check: '<circle cx="12" cy="12" r="9"/><path d="m8 12 3 3 5-6"/>'
   };
   function icon(name) {
     return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + (paths[name] || paths.info) + '</svg>';
@@ -56,39 +57,31 @@ function start(script) {
     sw: {
       subtitle: 'Msaidizi wako wa Uhamiaji', online: 'Mtandaoni',
       welcome: 'Karibu! Mimi ni Mr. HamaHama, msaidizi wa kidijitali wa Idara ya Uhamiaji Tanzania.',
-      pick: 'Bofya huduma unayohitaji, au andika swali lako hapa chini.',
-      popular: 'Maswali yanayoulizwa zaidi', placeholder: 'Andika swali lako...',
-      home: 'Menyu kuu', back: 'Rudi', steps: 'Hatua', source: 'Chanzo', page: 'uk.',
-      related: 'Maswali yanayohusiana', helpful: 'Je, jibu hili limekusaidia?',
+      pick: 'Chagua huduma unayohitaji kuona maswali na majibu yake, au andika swali lako hapa chini.',
+      popular: 'Maswali yanayoulizwa zaidi', topics: 'Mafungu ya huduma', placeholder: 'Andika swali lako...',
+      home: 'Menyu kuu', back: 'Rudi', steps: 'Hatua', answer: 'Jibu',
+      related: 'Maswali mengine yanayohusiana', helpful: 'Je, jibu hili limekusaidia?',
       thanks: 'Asante kwa maoni yako!', sorry: 'Samahani. Kwa msaada zaidi wasiliana na info@immigration.go.tz.',
       suggest: 'Nimepata maswali haya yanayokaribiana na swali lako. Chagua moja:',
-      readSection: 'Soma maelezo kamili', otherSections: 'Maelezo mengine yanayohusiana',
-      docsNote: 'Kwa kesi yako binafsi, thibitisha na Idara ya Uhamiaji.',
-      fromLaw: 'Maelezo yanayohusiana', notfound: 'Sijapata jibu lililohakikiwa kwa swali hilo. Chagua huduma hapa chini au wasiliana na info@immigration.go.tz.',
+      notfound: 'Sijapata jibu la swali hilo. Chagua fungu la huduma hapa chini, au wasiliana na info@immigration.go.tz.',
       greet: 'Karibu sana! Nikusaidie kuhusu huduma gani?', typing: 'Mr. HamaHama anaandika',
-      disclaimer: 'Taarifa hizi ni muhtasari wa miongozo rasmi. Thibitisha na Idara ya Uhamiaji kabla ya kufanya uamuzi.',
-      lawsEmpty: 'Sheria bado hazijapakiwa kwenye chatbot. (Msimamizi: endesha tools/build_kb.py.)',
-      lawsLoading: 'Inapakia sheria...', sections: 'Chagua kifungu:', more: 'Onyesha zaidi', readMore: 'Soma zaidi',
-      filter: 'Tafuta ndani ya sheria hii...', section: 'Kifungu', enlarge: 'Kuza picha', closeImg: 'Funga',
+      disclaimer: 'Maelezo haya yameandaliwa kutoka kwenye sheria na miongozo ya Idara ya Uhamiaji. Kwa kesi yako binafsi, thibitisha na ofisi ya Uhamiaji.',
+      enlarge: 'Kuza picha', closeImg: 'Funga',
       langBtn: 'EN', langLabel: 'Switch to English', close: 'Funga', open: 'Fungua Mr. HamaHama'
     },
     en: {
       subtitle: 'Your Immigration Assistant', online: 'Online',
       welcome: 'Welcome! I am Mr. HamaHama, the digital assistant of the Tanzania Immigration Department.',
-      pick: 'Tap the service you need, or type your question below.',
-      popular: 'Most asked questions', placeholder: 'Type your question...',
-      home: 'Main menu', back: 'Back', steps: 'Steps', source: 'Source', page: 'p.',
+      pick: 'Choose a service to see its questions and answers, or type your question below.',
+      popular: 'Most asked questions', topics: 'Service topics', placeholder: 'Type your question...',
+      home: 'Main menu', back: 'Back', steps: 'Steps', answer: 'Answer',
       related: 'Related questions', helpful: 'Was this answer helpful?',
       thanks: 'Thank you for your feedback!', sorry: 'Sorry about that. For more help contact info@immigration.go.tz.',
       suggest: 'I found these questions close to yours. Choose one:',
-      readSection: 'Read the full explanation', otherSections: 'Other related information',
-      docsNote: 'For your personal case, confirm with the Immigration Department.',
-      fromLaw: 'Related information', notfound: 'I do not have a verified answer for that. Choose a service below or contact info@immigration.go.tz.',
+      notfound: 'I could not find an answer to that. Choose a service below, or contact info@immigration.go.tz.',
       greet: 'You are welcome! Which service can I help you with?', typing: 'Mr. HamaHama is typing',
-      disclaimer: 'This is a summary of official guidelines. Confirm with the Immigration Department before making a decision.',
-      lawsEmpty: 'Laws have not been loaded into the chatbot yet. (Admin: run tools/build_kb.py.)',
-      lawsLoading: 'Loading laws...', sections: 'Choose a section:', more: 'Show more', readMore: 'Read more',
-      filter: 'Search within this law...', section: 'Section', enlarge: 'Enlarge image', closeImg: 'Close',
+      disclaimer: 'These explanations are based on the laws and guidelines of the Immigration Department. For your personal case, confirm with an Immigration office.',
+      enlarge: 'Enlarge image', closeImg: 'Close',
       langBtn: 'SW', langLabel: 'Badili kuwa Kiswahili', close: 'Close', open: 'Open Mr. HamaHama'
     }
   };
@@ -121,19 +114,19 @@ function start(script) {
   panel.setAttribute('role', 'dialog');
   panel.setAttribute('aria-label', 'Mr. HamaHama');
   panel.innerHTML =
-    '<header class="hh-head">' +
+    '<div class="hh-head">' +
       '<div class="hh-avatar"><img src="' + avatar + '" alt=""></div>' +
       '<div class="hh-title"><strong>Mr. HamaHama</strong><span data-t="subtitle"></span>' +
       '<span class="hh-status"><i></i><b data-t="online"></b></span></div>' +
       '<button type="button" class="hh-lang" data-lang></button>' +
       '<button type="button" class="hh-icon" data-home>' + icon('home') + '</button>' +
       '<button type="button" class="hh-icon" data-close>' + icon('close') + '</button>' +
-    '</header>' +
-    '<main class="hh-chat" aria-live="polite"></main>' +
-    '<footer class="hh-compose">' +
+    '</div>' +
+    '<div class="hh-chat" role="region" aria-live="polite"></div>' +
+    '<div class="hh-compose">' +
       '<form class="hh-box"><input type="text" autocomplete="off" maxlength="200"><button type="submit" class="hh-send">' + icon('send') + '</button></form>' +
       '<div class="hh-powered">Powered by <b>Ngosha Multimedia</b> · NgoshaChatBot</div>' +
-    '</footer>';
+    '</div>';
   var launcher = el('button', 'hh-launcher');
   launcher.type = 'button';
   launcher.innerHTML = '<span class="hh-launch-logo"><img src="' + avatar + '" alt=""><i></i></span>' +
@@ -160,21 +153,12 @@ function start(script) {
   }
 
   /* ---------- Data ---------- */
-  var kb = null, laws = null, lawsPromise = null;
+  var kb = null;
   var kbPromise = fetch(KB_URL, { cache: 'no-cache' })
     .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
     .then(function (d) { kb = d; indexFaqs(); return d; })
     .catch(function () { kb = { topics: [], faqs: [], popular: [] }; return kb; });
 
-  function loadLaws() {
-    if (!lawsPromise) {
-      lawsPromise = fetch(LAWS_URL, { cache: 'no-cache' })
-        .then(function (r) { if (!r.ok) throw new Error(r.status); return r.json(); })
-        .then(function (d) { laws = (d && d.laws) || []; indexLaws(); return laws; })
-        .catch(function () { laws = []; return laws; });
-    }
-    return lawsPromise;
-  }
   function faq(id) { return kb && kb.faqs.filter(function (f) { return f.id === id; })[0]; }
   function topic(id) { return kb && kb.topics.filter(function (x) { return x.id === id; })[0]; }
 
@@ -244,36 +228,58 @@ function start(script) {
     }
     return edits + (a.length - i) + (b.length - j) <= 1;
   }
+  function answerText(f) {
+    return ['sw', 'en'].map(function (l) {
+      var a = f.answer[l] || {};
+      return [a.text || '', (a.steps || []).join(' '), (a.list || []).join(' '), a.note || ''].join(' ');
+    }).join(' ');
+  }
   function indexFaqs() {
     kb.faqs.forEach(function (f) {
       var parts = [f.q.sw, f.q.en].concat(f.aliases || []);
       f._docs = parts.map(tokens);
+      f._q = setOf(dtokens(parts.join(' ') + ' ' + L2(f.group)));
+      f._a = setOf(dtokens(answerText(f)));
     });
   }
+  function setOf(arr) { var s = {}; arr.forEach(function (x) { s[x] = 1; }); return s; }
+  function L2(o) { return o ? (o.sw || '') + ' ' + (o.en || '') : ''; }
+  // Sehemu ya "makundi ya maneno" ya swali yanayopatikana kwenye seti fulani ya maneno.
+  function coverage(groups, set) {
+    if (!groups.length) return 0;
+    return groups.filter(function (g) { return Object.keys(g).some(function (t) { return set[t]; }); }).length / groups.length;
+  }
   function searchFaqs(q) {
-    var qt = tokens(q);
-    if (!Object.keys(qt).length) return [];
+    var qt = tokens(q), groups = queryGroups(q);
+    if (!Object.keys(qt).length && !groups.length) return [];
     return kb.faqs.map(function (f) {
       var best = 0, nq = normalize(q);
+      // alama ya maana: maneno ya swali (na visawe) yako kwenye swali la FAQ, au angalau kwenye jibu lake
+      var cq = coverage(groups, f._q), ca = coverage(groups, f._a);
+      best = Math.max(best, 0.72 * cq + 0.23 * Math.max(cq, ca));
       f._docs.forEach(function (d) { best = Math.max(best, overlap(qt, d) * 0.6 + overlap(d, qt) * 0.4); });
       // Jina mbadala likipatikana lote ndani ya swali, hilo ndilo jibu (refu zaidi hushinda).
+      // jina mbadala likipatikana lote ndani ya swali ni ishara kubwa, lakini swali lote bado lizingatiwe
+      var aliasHit = 0;
       (f.aliases || []).forEach(function (a) {
         var na = normalize(a).trim();
-        if (na.length > 3 && (' ' + nq + ' ').indexOf(' ' + na + ' ') > -1) best = Math.max(best, 1 + na.length / 100);
+        if (na.length > 3 && (' ' + nq + ' ').indexOf(' ' + na + ' ') > -1) aliasHit = Math.max(aliasHit, na.length);
       });
+      if (aliasHit) best = Math.max(best, 0.72 * cq + 0.23 * Math.max(cq, ca) + 0.25 + aliasHit / 400);
       return { f: f, score: best };
     }).filter(function (r) { return r.score >= 0.3; })
       .sort(function (a, b) { return b.score - a.score; });
   }
   var TOPIC_CONCEPT = { passport: '#passport', visa: '#visa', residence: '#permit', citizenship: '#citizen' };
+  // maneno yanayoelekeza moja kwa moja kwenye fungu (swali la neno moja)
+  var TOPIC_WORDS = { pass: /^(pasi|pass|passes)$/, mjue: /^(mjue jirani( yako)?|wahamiaji haramu|mhamiaji haramu)$/ };
   function topicFor(q) {
-    var qt = tokens(q);
-    return kb.topics.filter(function (tp) { return TOPIC_CONCEPT[tp.id] && qt[TOPIC_CONCEPT[tp.id]]; })[0];
+    var qt = tokens(q), nq = normalize(q);
+    return kb.topics.filter(function (tp) {
+      return (TOPIC_CONCEPT[tp.id] && qt[TOPIC_CONCEPT[tp.id]]) || (TOPIC_WORDS[tp.id] && TOPIC_WORDS[tp.id].test(nq));
+    })[0];
   }
-  /* ---------- Injini ya kusoma nyaraka (BM25 + kuchagua sentensi) ----------
-   * Hakuna AI wala API: chatbot inatafuta kifungu kinachohusika zaidi kwenye sheria
-   * na kuonyesha sentensi halisi zinazojibu swali, pamoja na chanzo chake.
-   */
+  /* ---------- Visawe vya Kiswahili <-> Kiingereza na mizizi ya maneno ---------- */
   var SYN = [
     'pasipoti passport hati kusafiria', 'visa viza', 'kibali vibali permit residence ukaazi ukazi',
     'uraia citizenship citizen naturalisation naturalization tajnisi', 'mgeni wageni foreigner alien immigrant non-citizen',
@@ -285,11 +291,11 @@ function start(script) {
     'kuzaliwa zaliwa birth born', 'nje outside abroad', 'kukana kana renounce renunciation', 'masharti sharti vigezo conditions condition eligibility qualifications', 'kunyang anywa nyang deprivation deprive deprived', 'ada gharama bei fee fees cost charge', 'kupotea potea imepotea lost stolen imeibiwa ibiwa',
     'kuharibika imeharibika damaged', 'maombi ombi kuomba omba apply application applicant',
     'kufuta kufutwa futwa futa cancel cancelled cancellation revoke revocation', 'rufaa appeal', 'mkimbizi wakimbizi refugee asylum',
-    'kuongeza kurefusha refusha extension extend renew renewal', 'muda kipindi period duration validity',
+    'kuongeza kurefusha refusha extension extend renew renewal', 'muda kipindi dumu kinadumu inadumu period duration validity valid',
     'pacha dual', 'kukamatwa kamata kamatwa arrest detain detention', 'msafiri wasafiri traveller traveler passenger',
     'meli ship vessel', 'ndege aircraft', 'mwajiri employer', 'mwanafunzi wanafunzi student', 'kujitolea volunteer',
     'mstaafu wastaafu retiree retired', 'mmisionari missionary', 'mtafiti researcher research', 'siku days', 'nchi country countries', 'hitaji require required requirement requirements', 'ruhusiwa ruhusa allowed permitted', 'chukua processing processed process', 'dharura emergency', 'mwanafunzi wanafunzi student students', 'mwaka miaka year years',
-    'mahakama court', 'hati document documents nyaraka vielelezo', 'kughushi ghushi forge forgery forged false', 'kusafirisha smuggle smuggling trafficking'
+    'mahakama court', 'pasi pass passes', 'jirani neighbour neighbor', 'haramu illegal unlawful', 'taarifa report ripoti', 'mtegemezi wategemezi dependant dependent', 'mstaafu retire', 'kuwekeza mwekezaji', 'mwanafunzi student', 'hati document documents nyaraka vielelezo', 'kughushi ghushi forge forgery forged false', 'kusafirisha smuggle smuggling trafficking'
   ].map(function (g) { return g.split(' '); });
   var SYNMAP = {};
   SYN.forEach(function (g) {
@@ -298,7 +304,7 @@ function start(script) {
     toks.forEach(function (t) { SYNMAP[t] = (SYNMAP[t] || []).concat(toks); });
   });
   var DSTOP = {};
-  (STOP.join(' ') + ' bila kiasi kupata pata nifanye nifanyeje fanye ngapi gani nchini tanzania mimi wewe yeye sisi changu chako chake zangu zako yake wake yetu nini sasa pia tu kweli ili shall such under may it its from who whom whose person act section any be by as at this that these those there where when been being has have had not no all other than into upon within without per said subsection paragraph regulations regulation made provided unless').split(' ').forEach(function (w) { if (w) DSTOP[w] = 1; });
+  (STOP.join(' ') + ' bila wapi nitoe kiasi kupata pata nifanye nifanyeje fanye ngapi gani nchini tanzania mimi wewe yeye sisi changu chako chake zangu zako yake wake yetu nini sasa pia tu kweli ili shall such under may it its from who whom whose person act section any be by as at this that these those there where when been being has have had not no all other than into upon within without per said subsection paragraph regulations regulation made provided unless').split(' ').forEach(function (w) { if (w) DSTOP[w] = 1; });
 
   function stem(w) {
     if (w.length > 5) {
@@ -319,31 +325,6 @@ function start(script) {
     return (s.match(/[a-z0-9]+/g) || []).filter(function (w) { return w.length > 1 && !DSTOP[w]; }).map(stem);
   }
 
-  var docs = [], postings = {}, avgLen = 1;
-  function indexLaws() {
-    docs = []; postings = {};
-    laws.forEach(function (law) {
-      law.sections.forEach(function (s) {
-        s._tok = tokens((s.title || '') + ' ' + (s.text || '').slice(0, 1500)); // kichujio cha orodha ya vifungu
-        var text = s.text || '';
-        // gawa maandishi marefu kwenye mipaka ya aya (si katikati ya neno)
-        var parts = [], buf = '';
-        text.split('\n').forEach(function (para) {
-          if (buf && buf.length + para.length > 1600) { parts.push(buf); buf = ''; }
-          buf += (buf ? '\n' : '') + para;
-        });
-        parts.push(buf);
-        parts.forEach(function (part, pi) {
-          var toks = dtokens((s.title || '') + ' ' + (s.title || '') + ' ' + part);
-          var d = { law: law, s: s, text: part, part: pi, len: Math.max(1, toks.length), tf: {} };
-          toks.forEach(function (t) { d.tf[t] = (d.tf[t] || 0) + 1; });
-          var idx = docs.push(d) - 1;
-          Object.keys(d.tf).forEach(function (t) { (postings[t] = postings[t] || []).push(idx); });
-        });
-      });
-    });
-    avgLen = docs.reduce(function (a, d) { return a + d.len; }, 0) / (docs.length || 1);
-  }
   // Maneno ya swali: kila neno ni "kundi" (neno + visawe vyake vya Kiswahili/Kiingereza).
   function queryGroups(q) {
     var seen = {};
@@ -361,152 +342,8 @@ function start(script) {
         return g;
       });
   }
-  function idf(t) {
-    var n = (postings[t] || []).length;
-    return n ? Math.log(1 + (docs.length - n + 0.5) / (n + 0.5)) : 0;
-  }
-  function searchDocs(q, k) {
-    if (!docs.length) return [];
-    var groups = queryGroups(q), scores = {};
-    var wantsFee = groups.some(function (g) { return g.fee || g.ada || g.gharama; });
-    groups.forEach(function (g) {
-      // kwa kila kundi, chukua alama bora ya neno lake moja ndani ya kila hati (visawe havijumlishwi mara mbili)
-      var best = {};
-      Object.keys(g).forEach(function (t) {
-        var w = g[t] * idf(t);
-        (postings[t] || []).forEach(function (i) {
-          var d = docs[i], tf = d.tf[t];
-          var sc = w * tf * 2.4 / (tf + 1.4 * (0.25 + 0.75 * d.len / avgLen));
-          if (!best[i] || sc > best[i]) best[i] = sc;
-        });
-      });
-      Object.keys(best).forEach(function (i) { scores[i] = (scores[i] || 0) + best[i]; });
-    });
-    return Object.keys(scores).map(function (i) {
-      var d = docs[i], hit = groups.filter(function (g) { return Object.keys(g).some(function (t) { return d.tf[t]; }); }).length;
-      // vipande vifupi sana ("angalia jedwali hapa chini") visishinde maelezo kamili
-      var prior = Math.sqrt(Math.min(1, d.len / 30));
-      // kichwa cha kipengele chenye maneno ya swali ni ishara kubwa ya jibu sahihi
-      var tt = {};
-      dtokens((d.s.title || '') + ' ' + (d.law.title || '')).forEach(function (t) { tt[t] = 1; });
-      var titleHit = groups.filter(function (g) { return Object.keys(g).some(function (t) { return tt[t]; }); }).length;
-      var boost = 1 + 0.8 * (groups.length ? titleHit / groups.length : 0);
-      if (wantsFee && isTable(d.text)) boost *= 1.6;
-      boost *= Math.pow(d.law.priority || 1, wantsFee ? 3 : 1);
-      boost /= 1 + 0.2 * (d.part || 0); // sehemu ya kwanza ya kifungu huwa na kanuni kuu // ada: majedwali safi ya tovuti rasmi kwanza
-      return { d: d, score: scores[i] * prior * boost, coverage: groups.length ? hit / groups.length : 0 };
-    }).sort(function (a, b) { return b.score - a.score; }).slice(0, k || 5);
-  }
-  // Gawa maandishi ya kisheria kuwa sentensi/vifungu vidogo: (1), (a), au mwisho wa sentensi.
-  function sentences(text) {
-    return text.replace(/\s*\n\s*(?=\(\w{1,4}\)\s)/g, '\n').split(/\n+|(?<=[.;:])\s+(?=[A-Z(])/)
-      .map(function (x) { return x.trim(); }).filter(function (x) { return x.length > 25; });
-  }
-  function bestSentences(d, groups, max) {
-    var sents = sentences(d.text);
-    var scored = sents.map(function (sn, i) {
-      var toks = {}, sc = 0;
-      dtokens(sn).forEach(function (t) { toks[t] = 1; });
-      groups.forEach(function (g) {
-        var m = 0;
-        Object.keys(g).forEach(function (t) { if (toks[t]) m = Math.max(m, g[t] * idf(t)); });
-        sc += m;
-      });
-      return { i: i, text: sn, score: sc / Math.pow(Math.max(8, Object.keys(toks).length), 0.35) };
-    }).filter(function (x) { return x.score > 0; });
-    var top = scored.sort(function (a, b) { return b.score - a.score; }).slice(0, max);
-    return top.sort(function (a, b) { return a.i - b.i; });
-  }
-  // Jedwali (ada n.k.): onyesha mistari yote badala ya sentensi 3.
-  function isTable(text) {
-    var lines = text.split('\n');
-    var money = lines.filter(function (l) { return /\b(USD|Tsh|TZS|Gratis)\b|\d[\d,]*\/-/i.test(l); }).length;
-    return (text.match(/\|/g) || []).length >= 6 || money >= 3;
-  }
-  function tableLines(text) {
-    // mistari ya jedwali tu (yenye | au kiasi cha fedha); simama aya ndefu ya maelezo ikianza
-    var out = [];
-    text.split('\n').some(function (l) {
-      l = l.trim();
-      if (!l) return false;
-      var row = /\|/.test(l) || (/\b(USD|Tsh|TZS|Gratis)\b|\d[\d,]*\/-/i.test(l) && l.length < 110) || l.length < 60;
-      if (!row && out.length >= 2) return true;
-      if (row) out.push(l);
-      return out.length >= 10;
-    });
-    return out.map(function (l, i) { return { i: i, text: l, score: 1 }; });
-  }
-  function docsAnswer(q) {
-    var groups = queryGroups(q);
-    if (!groups.length || (groups.length === 1 && topicFor(q))) return null; // "uraia" peke yake -> fungua mada
-    var need = groups.length <= 2 ? 1 : 0.5;
-    var hits = searchDocs(q, 12).filter(function (h) { return h.coverage >= need; });
-    if (!hits.length) return null;
-    // alama ya BM25 ikichanganywa na sehemu ya maneno ya swali yaliyoguswa
-    hits.sort(function (a, b) { return b.score * (0.4 + b.coverage) - a.score * (0.4 + a.coverage); });
-    var top = hits[0];
-    var picks = isTable(top.d.text) ? tableLines(top.d.text) : bestSentences(top.d, groups, 3);
-    var second = null;
-    if (isTable(top.d.text)) { // swali la ada: onyesha pia jedwali la pili linalohusiana (mf. ndani ya nchi / ubalozini)
-      second = hits.slice(1).filter(function (h) {
-        return h.d.s !== top.d.s && h.d.law === top.d.law && isTable(h.d.text) && h.score >= top.score * 0.5;
-      })[0] || null;
-    }
-    if (!picks.length) return null;
-    var others = [], seen = {};
-    seen[top.d.law.id + '#' + top.d.s.no + top.d.s.title] = 1;
-    hits.slice(1).forEach(function (h) {
-      var key = h.d.law.id + '#' + h.d.s.no + h.d.s.title;
-      if (!seen[key] && h.coverage >= need * 0.8 && h.score >= top.score * 0.45) { seen[key] = 1; others.push(h); }
-    });
-    if (second) others = others.filter(function (h) { return h.d.s !== second.d.s; });
-    return { top: top, picks: picks, second: second, others: others.slice(0, 3), groups: groups };
-  }
-  function highlight(text, groups, node) {
-    var words = {};
-    groups.forEach(function (g) { Object.keys(g).forEach(function (t) { words[t] = 1; }); });
-    text.split(/([A-Za-z0-9À-ɏ]+)/).forEach(function (part) {
-      if (/^[A-Za-z0-9À-ɏ]+$/.test(part) && words[stem(normalize(part))]) node.appendChild(el('mark', null, part));
-      else if (part) node.appendChild(document.createTextNode(part));
-    });
-  }
-  // Sehemu ya maneno ya swali yanayopatikana kwenye swali/majina mbadala ya FAQ yenyewe.
-  function faqCoverage(f, q) {
-    var groups = queryGroups(q), toks = {};
-    dtokens([f.q.sw, f.q.en].concat(f.aliases || []).join(' ')).forEach(function (t) { toks[t] = 1; });
-    if (!groups.length) return 1;
-    return groups.filter(function (g) { return Object.keys(g).some(function (t) { return toks[t]; }); }).length / groups.length;
-  }
-  function lawRef(law, s) { return law.title + (s.no ? ' — ' + t('section') + ' ' + s.no : '') + (s.title ? ' (' + s.title + ')' : ''); }
-  function searchLaws(q) {
-    return searchDocs(q, 3).filter(function (h) { return h.coverage >= 0.5; }).map(function (h) { return { law: h.d.law, s: h.d.s }; });
-  }
 
-  /* ---------- Messages ---------- */
-  function scroll(node) {
-    requestAnimationFrame(function () {
-      if (node) chat.scrollTop = Math.max(0, node.offsetTop - 12);
-      else chat.scrollTop = chat.scrollHeight;
-    });
-  }
-  function userSay(text) {
-    var m = el('div', 'hh-msg hh-user', text);
-    chat.appendChild(m);
-    return m;
-  }
-  function botSay() {
-    var m = el('div', 'hh-msg hh-bot');
-    chat.appendChild(m);
-    return m;
-  }
-  function typing(done) {
-    var tp = el('div', 'hh-typing');
-    tp.setAttribute('role', 'status');
-    tp.innerHTML = '<span class="hh-typing-avatar"><img src="' + avatar + '" alt=""></span><span>' + t('typing') + '</span><span class="hh-dots"><i></i><i></i><i></i></span>';
-    chat.appendChild(tp);
-    scroll();
-    setTimeout(function () { tp.remove(); done(); }, 380);
-  }
+  /* ---------- Vipengele vya UI ---------- */
   function chipRow(items, cls) {
     var row = el('div', 'hh-chips ' + (cls || ''));
     items.forEach(function (it) {
@@ -523,13 +360,6 @@ function start(script) {
     });
     return box;
   }
-  function navRow(topicId) {
-    var items = [];
-    var tp = topicId && topic(topicId);
-    if (tp) items.push({ label: L(tp.title), icon: 'back', cls: 'hh-nav', go: function () { openTopic(tp.id); } });
-    items.push({ label: t('home'), icon: 'home', cls: 'hh-nav', go: showHome });
-    return chipRow(items, 'hh-navrow');
-  }
   function topicGrid() {
     var grid = el('div', 'hh-topics');
     kb.topics.forEach(function (tp, i) {
@@ -541,99 +371,157 @@ function start(script) {
     return grid;
   }
 
-  /* ---------- Screens ---------- */
-  function showHome(first) {
-    if (!first) userSay(t('home'));
-    var m = botSay();
-    m.classList.add('hh-home');
-    m.appendChild(el('p', 'hh-lead', t('welcome')));
-    m.appendChild(el('p', 'hh-sub', t('pick')));
-    m.appendChild(topicGrid());
-    var pop = (kb.popular || []).map(faq).filter(Boolean);
-    if (pop.length) {
-      m.appendChild(el('h4', 'hh-h', t('popular')));
-      m.appendChild(questionList(pop));
+  /* ---------- Skrini: kila fungu/jibu lina ukurasa wake ---------- */
+  var current = { view: 'home', topic: null };
+  function newScreen(view, topicId) {
+    current = { view: view, topic: topicId || null };
+    chat.innerHTML = '';
+    var sc = el('div', 'hh-screen hh-screen-' + view);
+    chat.appendChild(sc);
+    chat.scrollTop = 0;
+    return sc;
+  }
+  // Vitufe vya mafungu (tabs) juu ya kila ukurasa wa fungu/jibu
+  function topicTabs(activeId) {
+    var bar = el('div', 'hh-tabs');
+    bar.setAttribute('role', 'navigation');
+    bar.setAttribute('aria-label', t('topics'));
+    kb.topics.forEach(function (tp) {
+      var b = button('hh-tab' + (tp.id === activeId ? ' is-active' : ''), icon(tp.icon) + '<span></span>', function () { openTopic(tp.id); });
+      b.lastChild.textContent = L(tp.title);
+      if (tp.id === activeId) b.setAttribute('aria-current', 'page');
+      bar.appendChild(b);
+    });
+    requestAnimationFrame(function () {
+      var act = bar.querySelector('.is-active');
+      if (act) bar.scrollLeft = Math.max(0, act.offsetLeft - bar.offsetLeft - 16);
+    });
+    return bar;
+  }
+  function crumbs(topicId) {
+    var row = el('div', 'hh-crumbs');
+    var home = button('hh-crumb', icon('home') + '<span></span>', showHome);
+    home.lastChild.textContent = t('home');
+    row.appendChild(home);
+    var tp = topicId && topic(topicId);
+    if (tp) {
+      row.appendChild(el('span', 'hh-crumb-sep', '›'));
+      var tb = button('hh-crumb', '<span></span>', function () { openTopic(tp.id); });
+      tb.firstChild.textContent = L(tp.title);
+      row.appendChild(tb);
     }
-    scroll(first ? null : m);
+    return row;
+  }
+  function stagger(container) {
+    container.querySelectorAll('.hh-q, .hh-topic, .hh-steps li, .hh-list li').forEach(function (n, i) {
+      n.style.setProperty('--i', Math.min(i, 14));
+    });
   }
 
-  function openTopic(id, silent) {
+  function showHome() {
+    var sc = newScreen('home');
+    var hero = el('div', 'hh-hero');
+    hero.appendChild(el('p', 'hh-lead', t('welcome')));
+    hero.appendChild(el('p', 'hh-sub', t('pick')));
+    sc.appendChild(hero);
+    // ukurasa wa kwanza: blocks za huduma tu; maswali hufunguka ndani ya block inayobofywa
+    sc.appendChild(topicGrid());
+    sc.appendChild(el('p', 'hh-disclaimer', t('disclaimer')));
+    stagger(sc);
+  }
+
+  function openTopic(id) {
     var tp = topic(id);
     if (!tp) return showHome();
-    if (!silent) userSay(L(tp.title));
-    if (tp.special === 'laws') return openLaws();
-    typing(function () {
-      var m = botSay();
-      var list = kb.faqs.filter(function (f) { return f.topic === id; });
-      if (list.length) {
-        m.appendChild(el('p', null, L(tp.intro)));
-        m.appendChild(questionList(list));
-      } else {
-        m.appendChild(el('p', null, L(tp.empty) || t('notfound')));
-        var lawsTp = topic('laws');
-        m.appendChild(chipRow([
-          lawsTp ? { label: L(lawsTp.title), icon: 'law', go: function () { openTopic('laws'); } } : null,
-          { label: L((faq('contact') || {}).q) || 'Contact', icon: 'info', go: function () { showAnswer('contact'); } }
-        ].filter(Boolean)));
-      }
-      m.appendChild(navRow());
-      scroll(m);
+    var sc = newScreen('topic', id);
+    sc.appendChild(topicTabs(id));
+    var banner = el('div', 'hh-banner');
+    banner.innerHTML = '<span class="hh-banner-icon">' + icon(tp.icon) + '</span><div><strong></strong><small></small></div>';
+    banner.querySelector('strong').textContent = L(tp.title);
+    var list = kb.faqs.filter(function (f) { return f.topic === id; });
+    banner.querySelector('small').textContent = L(tp.intro) + ' · ' + (lang === 'sw' ? 'maswali ' + list.length : list.length + ' questions');
+    sc.appendChild(banner);
+    // panga maswali kwa vikundi vidogo kwa mpangilio wa data
+    var groups = [], byKey = {};
+    list.forEach(function (f) {
+      var key = L(f.group) || '';
+      if (!byKey[key]) { byKey[key] = []; groups.push(key); }
+      byKey[key].push(f);
     });
+    groups.forEach(function (key) {
+      if (key) sc.appendChild(el('h4', 'hh-h hh-group', key));
+      sc.appendChild(questionList(byKey[key]));
+    });
+    if (!groups.length) sc.appendChild(el('p', null, t('notfound')));
+    sc.appendChild(crumbs());
+    stagger(sc);
   }
 
-  function showAnswer(id, silent, lawHits) {
+  function renderAnswer(f, sc) {
+    var box = el('div', 'hh-card');
+    var a = f.answer[lang] || f.answer.sw;
+    // kichwa cha jibu: alama ya "JIBU" + swali lenyewe, kisha mwili wa jibu wenye rangi yake
+    var head = el('div', 'hh-card-head');
+    head.innerHTML = '<span class="hh-card-badge">' + icon('check') + '<b></b></span>';
+    head.querySelector('b').textContent = t('answer');
+    head.appendChild(el('h3', 'hh-card-q', L(f.q)));
+    box.appendChild(head);
+    var card = el('div', 'hh-card-body');
+    box.appendChild(card);
+    if (a.text) card.appendChild(el('p', null, a.text));
+    if (a.steps && a.steps.length) {
+      card.appendChild(el('h5', 'hh-h', t('steps')));
+      var ol = el('ol', 'hh-steps');
+      a.steps.forEach(function (s) { ol.appendChild(el('li', null, s)); });
+      card.appendChild(ol);
+    }
+    if (a.list && a.list.length) {
+      var ul = el('ul', 'hh-list');
+      a.list.forEach(function (s) { ul.appendChild(el('li', null, s)); });
+      card.appendChild(ul);
+    }
+    if (a.note) {
+      var note = el('p', 'hh-note');
+      note.innerHTML = icon('info') + '<span></span>';
+      note.lastChild.textContent = a.note;
+      card.appendChild(note);
+    }
+    if (f.images && f.images.length) card.appendChild(gallery(f.images));
+    if (f.links && f.links.length) {
+      var lk = el('div', 'hh-links');
+      f.links.forEach(function (l) {
+        var aTag = el('a', 'hh-link');
+        aTag.href = l.url;
+        aTag.target = '_blank';
+        aTag.rel = 'noopener';
+        aTag.innerHTML = icon('link') + '<span></span>';
+        aTag.lastChild.textContent = L(l.label);
+        lk.appendChild(aTag);
+      });
+      card.appendChild(lk);
+    }
+    card.appendChild(feedback(f.id));
+    sc.appendChild(box);
+    var rel = (f.related || []).map(faq).filter(Boolean);
+    // ongeza maswali mengine ya kikundi hichohicho ili mtu aendelee kusoma bila kurudi nyuma
+    kb.faqs.forEach(function (x) {
+      if (rel.length < 5 && x.id !== f.id && x.topic === f.topic && L(x.group) === L(f.group) && rel.indexOf(x) < 0) rel.push(x);
+    });
+    if (rel.length) {
+      sc.appendChild(el('h4', 'hh-h hh-group', t('related')));
+      sc.appendChild(questionList(rel));
+    }
+    sc.appendChild(crumbs(f.topic));
+    stagger(sc);
+  }
+
+  function showAnswer(id, asked) {
     var f = faq(id);
     if (!f) return;
-    if (!silent) userSay(L(f.q));
-    typing(function () {
-      var m = botSay();
-      var card = el('div', 'hh-card');
-      var a = f.answer[lang] || f.answer.sw;
-      if (silent) card.appendChild(el('h4', 'hh-card-q', L(f.q)));
-      if (a.text) card.appendChild(el('p', null, a.text));
-      if (a.steps && a.steps.length) {
-        card.appendChild(el('h5', 'hh-h', t('steps')));
-        var ol = el('ol', 'hh-steps');
-        a.steps.forEach(function (s) { ol.appendChild(el('li', null, s)); });
-        card.appendChild(ol);
-      }
-      if (a.list && a.list.length) {
-        var ul = el('ul', 'hh-list');
-        a.list.forEach(function (s) { ul.appendChild(el('li', null, s)); });
-        card.appendChild(ul);
-      }
-      if (a.note) {
-        var note = el('p', 'hh-note');
-        note.innerHTML = icon('info') + '<span></span>';
-        note.lastChild.textContent = a.note;
-        card.appendChild(note);
-      }
-      if (f.images && f.images.length) card.appendChild(gallery(f.images));
-      if (f.links && f.links.length) {
-        var lk = el('div', 'hh-links');
-        f.links.forEach(function (l) {
-          var aTag = el('a', 'hh-link');
-          aTag.href = l.url;
-          aTag.target = '_blank';
-          aTag.rel = 'noopener';
-          aTag.innerHTML = icon('link') + '<span></span>';
-          aTag.lastChild.textContent = L(l.label);
-          lk.appendChild(aTag);
-        });
-        card.appendChild(lk);
-      }
-      card.appendChild(feedback(f.id));
-      m.appendChild(card);
-
-      var rel = (f.related || []).map(faq).filter(Boolean);
-      if (rel.length) {
-        m.appendChild(el('h4', 'hh-h', t('related')));
-        m.appendChild(questionList(rel));
-      }
-      if (lawHits && lawHits.length) m.appendChild(sectionLinks(t('fromLaw'), lawHits));
-      m.appendChild(navRow(f.topic !== 'general' ? f.topic : null));
-      scroll(m);
-    });
+    var sc = newScreen('answer', f.topic);
+    sc.appendChild(topicTabs(f.topic));
+    if (asked) sc.appendChild(el('div', 'hh-msg hh-user', asked));
+    renderAnswer(f, sc);
   }
 
   function feedback(id) {
@@ -680,202 +568,43 @@ function start(script) {
     return grid;
   }
 
-  /* ---------- Laws browser ---------- */
-  function openLaws() {
-    var m = botSay();
-    m.appendChild(el('p', 'hh-sub', t('lawsLoading')));
-    loadLaws().then(function () {
-      m.innerHTML = '';
-      if (!laws.length) {
-        m.appendChild(el('p', null, t('lawsEmpty')));
-      } else {
-        m.appendChild(el('p', null, L(topic('laws').intro)));
-        var box = el('div', 'hh-qlist');
-        laws.forEach(function (law) {
-          var b = button('hh-q', '<span></span><small></small>' + icon('next'), function () { openLaw(law); });
-          b.firstChild.textContent = law.title;
-          b.children[1].textContent = law.sections.length + ' ' + (lang === 'sw' ? 'vifungu' : 'sections');
-          box.appendChild(b);
-        });
-        m.appendChild(box);
-      }
-      m.appendChild(navRow());
-      scroll(m);
-    });
-  }
-
-  function openLaw(law) {
-    userSay(law.title);
-    var m = botSay();
-    m.appendChild(el('p', null, t('sections')));
-    var filter = el('input', 'hh-filter');
-    filter.type = 'search';
-    filter.placeholder = t('filter');
-    m.appendChild(filter);
-    var box = el('div', 'hh-qlist hh-sections');
-    m.appendChild(box);
-    var shown = 0, current = law.sections, PAGE = 12;
-    var moreBtn = button('hh-chip hh-more', '<span></span>', function () { render(false); });
-    moreBtn.firstChild.textContent = t('more');
-    function render(reset) {
-      if (reset) { box.innerHTML = ''; shown = 0; }
-      current.slice(shown, shown + PAGE).forEach(function (s) {
-        var b = button('hh-q', '<span></span>' + icon('next'), function () { showSection(law, s); });
-        b.firstChild.textContent = (s.no ? t('section') + ' ' + s.no + ': ' : '') + (s.title || '').slice(0, 90);
-        box.appendChild(b);
-      });
-      shown += PAGE;
-      moreBtn.style.display = shown < current.length ? '' : 'none';
-    }
-    filter.addEventListener('input', function () {
-      var q = filter.value.trim();
-      if (!q) current = law.sections;
-      else {
-        var qt = tokens(q), nq = normalize(q);
-        current = law.sections.filter(function (s) {
-          return String(s.no) === q || normalize(s.title).indexOf(nq) > -1 || overlap(qt, s._tok) >= 0.5;
-        });
-      }
-      render(true);
-    });
-    m.appendChild(moreBtn);
-    render(true);
-    m.appendChild(navRow('laws'));
-    scroll(m);
-  }
-
-  function showSection(law, s) {
-    userSay(niceTitle(s.title));
-    typing(function () {
-      var m = botSay();
-      var card = el('div', 'hh-card hh-law');
-      card.appendChild(el('h4', 'hh-card-q', niceTitle(s.title)));
-      var body = el('div', 'hh-law-text');
-      var text = s.text || '';
-      var LIMIT = 1100;
-      body.textContent = text.length > LIMIT ? text.slice(0, LIMIT) + '…' : text;
-      card.appendChild(body);
-      if (text.length > LIMIT) {
-        var more = button('hh-chip hh-more', '<span></span>', function () { body.textContent = text; more.remove(); });
-        more.firstChild.textContent = t('readMore');
-        card.appendChild(more);
-      }
-      m.appendChild(card);
-      m.appendChild(chipRow([
-        { label: t('back'), icon: 'back', cls: 'hh-nav', go: function () { openLaw(law); } },
-        { label: t('home'), icon: 'home', cls: 'hh-nav', go: showHome }
-      ], 'hh-navrow'));
-      scroll(m);
-    });
-  }
-
-  /* ---------- Jibu kutoka kwenye nyaraka ---------- */
-  // Kichwa safi cha kuonyesha: bila namba za mwongozo ("2.1", "(2)") na herufi kubwa zote
-  function niceTitle(title) {
-    var x = (title || '').replace(/^\d+(\.\d+)*\.?\s+/, '').replace(/\s*\(\d+\)$/, '').trim();
-    if (x === x.toUpperCase()) x = x.charAt(0) + x.slice(1).toLowerCase();
-    return x.slice(0, 90);
-  }
-  function sectionLinks(heading, hits) {
-    var wrap = el('div');
-    wrap.appendChild(el('h4', 'hh-h', heading));
-    var box = el('div', 'hh-qlist');
-    hits.forEach(function (h) {
-      var b = button('hh-q', '<span></span>' + icon('next'), function () { showSection(h.d.law, h.d.s); });
-      b.firstChild.textContent = niceTitle(h.d.s.title);
-      box.appendChild(b);
-    });
-    wrap.appendChild(box);
-    return wrap;
-  }
-  function showDocsAnswer(ans, faqRes) {
-    var m = botSay(), card = el('div', 'hh-card hh-docs');
-    var d = ans.top.d;
-    var quote = el('blockquote', 'hh-quote');
-    ans.picks.forEach(function (p) {
-      var para = el('p');
-      highlight(p.text, ans.groups, para);
-      quote.appendChild(para);
-    });
-    card.appendChild(quote);
-    if (ans.second) {
-      var d2 = ans.second.d;
-      var q2 = el('blockquote', 'hh-quote');
-      tableLines(d2.text).forEach(function (p) { var para = el('p'); highlight(p.text, ans.groups, para); q2.appendChild(para); });
-      card.appendChild(q2);
-    }
-    card.appendChild(chipRow([{ label: t('readSection'), icon: 'doc', go: function () { showSection(d.law, d.s); } }]));
-    var note = el('p', 'hh-note');
-    note.innerHTML = icon('info') + '<span></span>';
-    note.lastChild.textContent = t('docsNote');
-    card.appendChild(note);
-    card.appendChild(feedback('docs:' + d.law.id + '#' + (d.s.no || d.s.title)));
-    m.appendChild(card);
-    if (ans.others.length) m.appendChild(sectionLinks(t('otherSections'), ans.others));
-    if (faqRes && faqRes.length) {
-      m.appendChild(el('h4', 'hh-h', t('related')));
-      m.appendChild(questionList(faqRes.slice(0, 3).map(function (r) { return r.f; })));
-    }
-    m.appendChild(navRow());
-    scroll(m);
-  }
-
-  /* ---------- Free text ---------- */
+  /* ---------- Swali la kuandika ---------- */
   function ask(text) {
     text = (text || '').trim();
     if (!text) return;
     input.value = '';
-    userSay(text);
-    if (/^(habari|hujambo|mambo|salama|shikamoo|hello|hi|hey|good (morning|afternoon|evening))\b[\s\w!.,]{0,20}$/i.test(text) && searchFaqs(text).length === 0) {
-      return typing(function () {
-        var m = botSay();
-        m.appendChild(el('p', null, t('greet')));
-        m.appendChild(topicGrid());
-        scroll(m);
-      });
+    var res = searchFaqs(text);
+    var top = res[0], second = res[1];
+    if (/^(habari|hujambo|mambo|salama|shikamoo|hello|hi|hey|good (morning|afternoon|evening))\b[\s\w!.,]{0,20}$/i.test(text) && !res.length) {
+      var hs = newScreen('home');
+      hs.appendChild(el('div', 'hh-msg hh-user', text));
+      var g = el('div', 'hh-msg hh-bot');
+      g.appendChild(el('p', 'hh-lead', t('greet')));
+      g.appendChild(topicGrid());
+      hs.appendChild(g);
+      stagger(hs);
+      return;
     }
-    Promise.all([kbPromise, loadLaws()]).then(function () {
-      var res = searchFaqs(text);
-      var lawHits = searchLaws(text);
-      var top = res[0], second = res[1];
-      var ans = docsAnswer(text);
-      var faqOk = top && top.score >= 0.62 && (!second || top.score - second.score >= 0.12);
-      // FAQ iliyohakikiwa hushinda, isipokuwa nyaraka zinagusa swali lote na FAQ si ya uhakika mkubwa.
-      if (faqOk && !(ans && ans.top.coverage >= 0.99 && faqCoverage(top.f, text) < 0.99)) {
-        showAnswer(top.f.id, true, ans ? [ans.top].concat(ans.others).slice(0, 2) : null);
-        return;
-      }
-      if (ans) {
-        typing(function () { showDocsAnswer(ans, res); });
-        return;
-      }
-      typing(function () {
-        var m = botSay();
-        if (res.length) {
-          m.appendChild(el('p', null, t('suggest')));
-          m.appendChild(questionList(res.slice(0, 4).map(function (r) { return r.f; })));
-        }
-        if (lawHits.length) {
-          m.appendChild(el('h4', 'hh-h', t('fromLaw')));
-          var box = el('div', 'hh-qlist');
-          lawHits.forEach(function (h) {
-            var b = button('hh-q', '<span></span>' + icon('next'), function () { showSection(h.law, h.s); });
-            b.firstChild.textContent = niceTitle(h.s.title);
-            box.appendChild(b);
-          });
-          m.appendChild(box);
-        }
-        var tp = !res.length && topicFor(text);
-        if (tp) { m.remove(); openTopic(tp.id, true); return; }
-        if (!res.length && !lawHits.length) {
-          m.appendChild(el('p', null, t('notfound')));
-          m.appendChild(topicGrid());
-        } else {
-          m.appendChild(navRow());
-        }
-        scroll(m);
-      });
-    });
+    // jibu moja kwa moja likiwa na uhakika; vinginevyo mapendekezo ya maswali yanayokaribiana
+    if (top && top.score >= 0.62 && (!second || top.score - second.score >= 0.1 || top.score >= 1)) {
+      showAnswer(top.f.id, text);
+      return;
+    }
+    var tp = topicFor(text);
+    if (tp && (!top || top.score < 0.5) && queryGroups(text).length <= 1) { openTopic(tp.id); return; }
+    var sc = newScreen('search', tp ? tp.id : null);
+    sc.appendChild(el('div', 'hh-msg hh-user', text));
+    var m = el('div', 'hh-msg hh-bot');
+    sc.appendChild(m);
+    if (res.length) {
+      m.appendChild(el('p', null, t('suggest')));
+      m.appendChild(questionList(res.slice(0, 6).map(function (r) { return r.f; })));
+    } else {
+      m.appendChild(el('p', null, t('notfound')));
+      m.appendChild(topicGrid());
+    }
+    sc.appendChild(crumbs());
+    stagger(sc);
   }
 
   /* ---------- Wiring ---------- */
@@ -887,9 +616,7 @@ function start(script) {
     if (show && !started) {
       started = true;
       kbPromise.then(function () {
-        showHome(true);
-        chat.appendChild(el('p', 'hh-disclaimer', t('disclaimer')));
-        loadLaws();
+        showHome();
       });
     }
     if (show) setTimeout(function () { input.focus({ preventScroll: true }); }, 60);
@@ -901,7 +628,11 @@ function start(script) {
   panel.querySelector('[data-lang]').addEventListener('click', function () {
     lang = lang === 'sw' ? 'en' : 'sw';
     applyText();
-    kbPromise.then(function () { showHome(); });
+    kbPromise.then(function () {
+      // baki kwenye ukurasa uleule baada ya kubadili lugha
+      if (current.view === 'topic') openTopic(current.topic);
+      else showHome();
+    });
   });
   panel.addEventListener('keydown', function (e) { if (e.key === 'Escape') toggle(false); });
   form.addEventListener('submit', function (e) {
@@ -919,6 +650,7 @@ function start(script) {
     close: function () { toggle(false); },
     ask: function (q) { toggle(true); kbPromise.then(function () { ask(q); }); },
     show: function (id) { toggle(true); kbPromise.then(function () { showAnswer(id); }); },
+    topic: function (id) { toggle(true); kbPromise.then(function () { openTopic(id); }); },
     version: VERSION
   };
 }
