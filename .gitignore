@@ -1,2 +1,4 @@
 rasmi/
 __pycache__/
+.wrangler/
+.dev.vars
