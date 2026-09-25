@@ -8,26 +8,50 @@
     {
       "id": "passport",
       "icon": "passport",
-      "title": { "sw": "Pasipoti", "en": "Passport" },
-      "intro": { "sw": "Chagua swali kuhusu pasipoti na hati za kusafiria:", "en": "Choose a question about passports and travel documents:" }
+      "title": {
+        "sw": "Pasipoti",
+        "en": "Passport"
+      },
+      "intro": {
+        "sw": "Chagua swali kuhusu pasipoti na hati za kusafiria:",
+        "en": "Choose a question about passports and travel documents:"
+      }
     },
     {
       "id": "visa",
       "icon": "visa",
-      "title": { "sw": "Visa", "en": "Visa" },
-      "intro": { "sw": "Chagua swali kuhusu visa ya kuingia Tanzania:", "en": "Choose a question about visas for Tanzania:" }
+      "title": {
+        "sw": "Visa",
+        "en": "Visa"
+      },
+      "intro": {
+        "sw": "Chagua swali kuhusu visa ya kuingia Tanzania:",
+        "en": "Choose a question about visas for Tanzania:"
+      }
     },
     {
       "id": "residence",
       "icon": "permit",
-      "title": { "sw": "Vibali vya Ukaazi", "en": "Residence Permits" },
-      "intro": { "sw": "Chagua swali kuhusu vibali vya ukaazi (Residence Permit):", "en": "Choose a question about residence permits:" }
+      "title": {
+        "sw": "Vibali vya Ukaazi",
+        "en": "Residence Permits"
+      },
+      "intro": {
+        "sw": "Chagua swali kuhusu vibali vya ukaazi (Residence Permit):",
+        "en": "Choose a question about residence permits:"
+      }
     },
     {
       "id": "citizenship",
       "icon": "people",
-      "title": { "sw": "Uraia", "en": "Citizenship" },
-      "intro": { "sw": "Chagua swali kuhusu uraia wa Tanzania:", "en": "Choose a question about Tanzanian citizenship:" },
+      "title": {
+        "sw": "Uraia",
+        "en": "Citizenship"
+      },
+      "intro": {
+        "sw": "Chagua swali kuhusu uraia wa Tanzania:",
+        "en": "Choose a question about Tanzanian citizenship:"
+      },
       "empty": {
         "sw": "Majibu ya uraia bado yanahakikiwa kabla ya kuwekwa hapa. Kwa sasa unaweza kusoma vifungu vya sheria kupitia \"Sheria na Kanuni\" au kuwasiliana na Idara kupitia info@immigration.go.tz.",
         "en": "Citizenship answers are still being verified before publication. Meanwhile you can read the law sections under \"Laws & Regulations\" or contact the Department at info@immigration.go.tz."
@@ -36,18 +60,44 @@
     {
       "id": "laws",
       "icon": "law",
-      "title": { "sw": "Sheria na Kanuni", "en": "Laws & Regulations" },
-      "intro": { "sw": "Chagua sheria, kanuni au mwongozo unaotaka kusoma:", "en": "Choose a law, regulation or guideline to read:" },
+      "title": {
+        "sw": "Sheria na Kanuni",
+        "en": "Laws & Regulations"
+      },
+      "intro": {
+        "sw": "Chagua sheria, kanuni au mwongozo unaotaka kusoma:",
+        "en": "Choose a law, regulation or guideline to read:"
+      },
       "special": "laws"
     }
   ],
-  "popular": ["passport.apply", "visa.apply", "residence.apply", "passport.lost", "passport.requirements", "visa.track"],
+  "popular": [
+    "passport.apply",
+    "visa.apply",
+    "residence.apply",
+    "passport.lost",
+    "passport.requirements",
+    "visa.track"
+  ],
   "faqs": [
     {
       "id": "passport.apply",
       "topic": "passport",
-      "q": { "sw": "Ninaombaje pasipoti?", "en": "How do I apply for a passport?" },
-      "aliases": ["nataka pasipoti", "naomba pasipoti", "nahitaji pasipoti", "napataje pasipoti", "jinsi ya kuomba pasipoti", "pasipoti mpya", "I want a passport", "new passport", "passport application"],
+      "q": {
+        "sw": "Ninaombaje pasipoti?",
+        "en": "How do I apply for a passport?"
+      },
+      "aliases": [
+        "nataka pasipoti",
+        "naomba pasipoti",
+        "nahitaji pasipoti",
+        "napataje pasipoti",
+        "jinsi ya kuomba pasipoti",
+        "pasipoti mpya",
+        "I want a passport",
+        "new passport",
+        "passport application"
+      ],
       "answer": {
         "sw": {
           "text": "Ombi la pasipoti linaanzia mtandaoni kwenye tovuti ya Uhamiaji.",
@@ -70,15 +120,43 @@
           ]
         }
       },
-      "links": [{ "label": { "sw": "Fungua immigration.go.tz", "en": "Open immigration.go.tz" }, "url": "https://www.immigration.go.tz" }],
-      "related": ["passport.requirements", "passport.payment", "passport.track"],
-      "source": { "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf", "pages": [3, 4] }
+      "links": [
+        {
+          "label": {
+            "sw": "Fungua immigration.go.tz",
+            "en": "Open immigration.go.tz"
+          },
+          "url": "https://www.immigration.go.tz"
+        }
+      ],
+      "related": [
+        "passport.requirements",
+        "passport.payment",
+        "passport.track"
+      ],
+      "source": {
+        "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
+        "pages": [
+          3,
+          4
+        ]
+      }
     },
     {
       "id": "passport.requirements",
       "topic": "passport",
-      "q": { "sw": "Ni vielelezo gani vinahitajika kwa pasipoti?", "en": "What documents are needed for a passport?" },
-      "aliases": ["viambato vya pasipoti", "nyaraka za pasipoti", "masharti ya pasipoti", "vitu vinavyohitajika pasipoti", "passport requirements", "documents needed for passport"],
+      "q": {
+        "sw": "Ni vielelezo gani vinahitajika kwa pasipoti?",
+        "en": "What documents are needed for a passport?"
+      },
+      "aliases": [
+        "viambato vya pasipoti",
+        "nyaraka za pasipoti",
+        "masharti ya pasipoti",
+        "vitu vinavyohitajika pasipoti",
+        "passport requirements",
+        "documents needed for passport"
+      ],
       "answer": {
         "sw": {
           "text": "Andaa vielelezo vifuatavyo:",
@@ -105,14 +183,36 @@
           "note": "Additional supporting documents may be requested for your circumstances."
         }
       },
-      "related": ["passport.apply", "passport.types"],
-      "source": { "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf", "pages": [6, 7] }
+      "related": [
+        "passport.apply",
+        "passport.types"
+      ],
+      "source": {
+        "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
+        "pages": [
+          6,
+          7
+        ]
+      }
     },
     {
       "id": "passport.types",
       "topic": "passport",
-      "q": { "sw": "Kuna aina gani za pasipoti?", "en": "What types of passports are there?" },
-      "aliases": ["aina za pasipoti", "pasipoti ziko aina ngapi", "picha za pasipoti", "pasipoti ya kidiplomasia", "pasipoti ya utumishi", "passport types", "types of passports", "diplomatic passport", "service passport"],
+      "q": {
+        "sw": "Kuna aina gani za pasipoti?",
+        "en": "What types of passports are there?"
+      },
+      "aliases": [
+        "aina za pasipoti",
+        "pasipoti ziko aina ngapi",
+        "picha za pasipoti",
+        "pasipoti ya kidiplomasia",
+        "pasipoti ya utumishi",
+        "passport types",
+        "types of passports",
+        "diplomatic passport",
+        "service passport"
+      ],
       "answer": {
         "sw": {
           "text": "Kuna aina tatu za pasipoti:",
@@ -134,18 +234,53 @@
         }
       },
       "images": [
-        { "file": "passport-ordinary.png", "label": { "sw": "Pasipoti ya Kawaida", "en": "Ordinary Passport" } },
-        { "file": "passport-service.jpg", "label": { "sw": "Pasipoti ya Utumishi", "en": "Service Passport" } },
-        { "file": "passport-diplomatic.jpg", "label": { "sw": "Pasipoti ya Kidiplomasia", "en": "Diplomatic Passport" } }
+        {
+          "file": "passport-ordinary.png",
+          "label": {
+            "sw": "Pasipoti ya Kawaida",
+            "en": "Ordinary Passport"
+          }
+        },
+        {
+          "file": "passport-service.jpg",
+          "label": {
+            "sw": "Pasipoti ya Utumishi",
+            "en": "Service Passport"
+          }
+        },
+        {
+          "file": "passport-diplomatic.jpg",
+          "label": {
+            "sw": "Pasipoti ya Kidiplomasia",
+            "en": "Diplomatic Passport"
+          }
+        }
       ],
-      "related": ["passport.apply", "passport.requirements"],
-      "source": { "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf", "pages": [1] }
+      "related": [
+        "passport.apply",
+        "passport.requirements"
+      ],
+      "source": {
+        "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
+        "pages": [
+          1
+        ]
+      }
     },
     {
       "id": "passport.payment",
       "topic": "passport",
-      "q": { "sw": "Ninalipaje ada ya pasipoti?", "en": "How do I pay for a passport?" },
-      "aliases": ["nalipaje pasipoti", "malipo ya pasipoti", "control number pasipoti", "how to pay for passport", "passport payment"],
+      "q": {
+        "sw": "Ninalipaje ada ya pasipoti?",
+        "en": "How do I pay for a passport?"
+      },
+      "aliases": [
+        "nalipaje pasipoti",
+        "malipo ya pasipoti",
+        "control number pasipoti",
+        "how to pay for passport",
+        "passport payment"
+      ],
       "answer": {
         "sw": {
           "text": "Malipo hufanywa kwa control number uliyopewa kwenye ombi lako.",
@@ -164,14 +299,33 @@
           "note": "Do not hand cash to an officer to pay on your behalf."
         }
       },
-      "related": ["passport.apply", "fees"],
-      "source": { "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf", "pages": [4, 5] }
+      "related": [
+        "passport.apply",
+        "fees"
+      ],
+      "source": {
+        "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
+        "pages": [
+          4,
+          5
+        ]
+      }
     },
     {
       "id": "passport.track",
       "topic": "passport",
-      "q": { "sw": "Ninafuatiliaje ombi langu la pasipoti?", "en": "How do I track my passport application?" },
-      "aliases": ["kufuatilia ombi la pasipoti", "angalia ombi la pasipoti", "endeleza ombi", "hali ya pasipoti", "passport application status", "track passport"],
+      "q": {
+        "sw": "Ninafuatiliaje ombi langu la pasipoti?",
+        "en": "How do I track my passport application?"
+      },
+      "aliases": [
+        "kufuatilia ombi la pasipoti",
+        "angalia ombi la pasipoti",
+        "endeleza ombi",
+        "hali ya pasipoti",
+        "passport application status",
+        "track passport"
+      ],
       "answer": {
         "sw": {
           "steps": [
@@ -188,15 +342,39 @@
           ]
         }
       },
-      "links": [{ "label": { "sw": "Fungua immigration.go.tz", "en": "Open immigration.go.tz" }, "url": "https://www.immigration.go.tz" }],
-      "related": ["passport.apply"],
-      "source": { "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf", "pages": [3] }
+      "links": [
+        {
+          "label": {
+            "sw": "Fungua immigration.go.tz",
+            "en": "Open immigration.go.tz"
+          },
+          "url": "https://www.immigration.go.tz"
+        }
+      ],
+      "related": [
+        "passport.apply"
+      ],
+      "source": {
+        "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
+        "pages": [
+          3
+        ]
+      }
     },
     {
       "id": "passport.lost",
       "topic": "passport",
-      "q": { "sw": "Pasipoti yangu imepotea au imeibiwa, nifanye nini?", "en": "My passport is lost or stolen — what do I do?" },
-      "aliases": ["pasipoti imepotea", "nimepoteza pasipoti", "pasipoti imeibiwa", "lost passport", "stolen passport"],
+      "q": {
+        "sw": "Pasipoti yangu imepotea au imeibiwa, nifanye nini?",
+        "en": "My passport is lost or stolen — what do I do?"
+      },
+      "aliases": [
+        "pasipoti imepotea",
+        "nimepoteza pasipoti",
+        "pasipoti imeibiwa",
+        "lost passport",
+        "stolen passport"
+      ],
       "answer": {
         "sw": {
           "steps": [
@@ -219,14 +397,31 @@
           "note": "The circumstances of the loss will be verified."
         }
       },
-      "related": ["passport.damaged", "passport.apply"],
-      "source": { "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf", "pages": [8, 9] }
+      "related": [
+        "passport.damaged",
+        "passport.apply"
+      ],
+      "source": {
+        "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
+        "pages": [
+          8,
+          9
+        ]
+      }
     },
     {
       "id": "passport.damaged",
       "topic": "passport",
-      "q": { "sw": "Pasipoti yangu imeharibika, nifanye nini?", "en": "My passport is damaged — what do I do?" },
-      "aliases": ["pasipoti imeharibika", "pasipoti imeungua", "pasipoti imechanika", "damaged passport"],
+      "q": {
+        "sw": "Pasipoti yangu imeharibika, nifanye nini?",
+        "en": "My passport is damaged — what do I do?"
+      },
+      "aliases": [
+        "pasipoti imeharibika",
+        "pasipoti imeungua",
+        "pasipoti imechanika",
+        "damaged passport"
+      ],
       "answer": {
         "sw": {
           "steps": [
@@ -243,14 +438,33 @@
           ]
         }
       },
-      "related": ["passport.lost", "passport.apply"],
-      "source": { "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf", "pages": [9] }
+      "related": [
+        "passport.lost",
+        "passport.apply"
+      ],
+      "source": {
+        "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
+        "pages": [
+          9
+        ]
+      }
     },
     {
       "id": "visa.apply",
       "topic": "visa",
-      "q": { "sw": "Ninaombaje visa ya Tanzania?", "en": "How do I apply for a Tanzania visa?" },
-      "aliases": ["jinsi ya kuomba visa", "naombaje visa", "evisa", "e-visa", "apply for visa", "tanzania visa", "visa application"],
+      "q": {
+        "sw": "Ninaombaje visa ya Tanzania?",
+        "en": "How do I apply for a Tanzania visa?"
+      },
+      "aliases": [
+        "jinsi ya kuomba visa",
+        "naombaje visa",
+        "evisa",
+        "e-visa",
+        "apply for visa",
+        "tanzania visa",
+        "visa application"
+      ],
       "answer": {
         "sw": {
           "text": "Visa huombwa mtandaoni (e-Visa).",
@@ -271,15 +485,42 @@
           ]
         }
       },
-      "links": [{ "label": { "sw": "Fungua immigration.go.tz", "en": "Open immigration.go.tz" }, "url": "https://www.immigration.go.tz" }],
-      "related": ["visa.track", "visa.children", "visa.zanzibar"],
-      "source": { "document": "VISA GUIDELINES.pdf", "pages": [1, 5] }
+      "links": [
+        {
+          "label": {
+            "sw": "Fungua immigration.go.tz",
+            "en": "Open immigration.go.tz"
+          },
+          "url": "https://www.immigration.go.tz"
+        }
+      ],
+      "related": [
+        "visa.track",
+        "visa.children",
+        "visa.zanzibar"
+      ],
+      "source": {
+        "document": "VISA GUIDELINES.pdf",
+        "pages": [
+          1,
+          5
+        ]
+      }
     },
     {
       "id": "visa.track",
       "topic": "visa",
-      "q": { "sw": "Ninafuatiliaje ombi langu la visa?", "en": "How do I track my visa application?" },
-      "aliases": ["kufuatilia visa", "hali ya ombi la visa", "visa grant notice", "visa application status", "track visa"],
+      "q": {
+        "sw": "Ninafuatiliaje ombi langu la visa?",
+        "en": "How do I track my visa application?"
+      },
+      "aliases": [
+        "kufuatilia visa",
+        "hali ya ombi la visa",
+        "visa grant notice",
+        "visa application status",
+        "track visa"
+      ],
       "answer": {
         "sw": {
           "steps": [
@@ -296,14 +537,30 @@
           ]
         }
       },
-      "related": ["visa.apply", "visa.entry"],
-      "source": { "document": "VISA GUIDELINES.pdf", "pages": [3] }
+      "related": [
+        "visa.apply",
+        "visa.entry"
+      ],
+      "source": {
+        "document": "VISA GUIDELINES.pdf",
+        "pages": [
+          3
+        ]
+      }
     },
     {
       "id": "visa.zanzibar",
       "topic": "visa",
-      "q": { "sw": "Je, nahitaji visa tofauti kwa Zanzibar?", "en": "Do I need a separate visa for Zanzibar?" },
-      "aliases": ["visa ya zanzibar na bara", "visa tanzania zanzibar", "zanzibar visa", "separate visa for zanzibar"],
+      "q": {
+        "sw": "Je, nahitaji visa tofauti kwa Zanzibar?",
+        "en": "Do I need a separate visa for Zanzibar?"
+      },
+      "aliases": [
+        "visa ya zanzibar na bara",
+        "visa tanzania zanzibar",
+        "zanzibar visa",
+        "separate visa for zanzibar"
+      ],
       "answer": {
         "sw": {
           "text": "Hapana. Ukitembelea Tanzania Bara na Zanzibar, chagua mahali utakapoanzia safari wakati wa kujaza fomu. Unaweza kutembelea sehemu zote mbili bila kuomba visa nyingine kwa sababu ya kuvuka kati ya Bara na Zanzibar."
@@ -312,14 +569,29 @@
           "text": "No. When visiting both Tanzania Mainland and Zanzibar, select your first destination in the application. You can visit both without obtaining a second visa solely for travelling between Mainland Tanzania and Zanzibar."
         }
       },
-      "related": ["visa.apply"],
-      "source": { "document": "VISA GUIDELINES.pdf", "pages": [2] }
+      "related": [
+        "visa.apply"
+      ],
+      "source": {
+        "document": "VISA GUIDELINES.pdf",
+        "pages": [
+          2
+        ]
+      }
     },
     {
       "id": "visa.children",
       "topic": "visa",
-      "q": { "sw": "Je, watoto wanahitaji ombi lao la visa?", "en": "Do children need their own visa application?" },
-      "aliases": ["visa ya mtoto", "watoto visa", "visa for children", "child visa"],
+      "q": {
+        "sw": "Je, watoto wanahitaji ombi lao la visa?",
+        "en": "Do children need their own visa application?"
+      },
+      "aliases": [
+        "visa ya mtoto",
+        "watoto visa",
+        "visa for children",
+        "child visa"
+      ],
       "answer": {
         "sw": {
           "text": "Ndiyo. Kila mwenye pasipoti anatakiwa kuwasilisha ombi lake la visa. Hata mtoto aliyetajwa kwenye ombi la mzazi anatakiwa kuwa na ombi lake tofauti."
@@ -328,14 +600,29 @@
           "text": "Yes. Each passport holder needs a separate visa application. A child included in a parent's application still needs a separate application."
         }
       },
-      "related": ["visa.apply"],
-      "source": { "document": "VISA GUIDELINES.pdf", "pages": [2] }
+      "related": [
+        "visa.apply"
+      ],
+      "source": {
+        "document": "VISA GUIDELINES.pdf",
+        "pages": [
+          2
+        ]
+      }
     },
     {
       "id": "visa.entry",
       "topic": "visa",
-      "q": { "sw": "Je, visa inanihakikishia kuingia nchini?", "en": "Does a visa guarantee entry?" },
-      "aliases": ["visa inanihakikishia kuingia", "naweza kukataliwa kuingia", "visa guarantee entry", "can entry be refused with a visa"],
+      "q": {
+        "sw": "Je, visa inanihakikishia kuingia nchini?",
+        "en": "Does a visa guarantee entry?"
+      },
+      "aliases": [
+        "visa inanihakikishia kuingia",
+        "naweza kukataliwa kuingia",
+        "visa guarantee entry",
+        "can entry be refused with a visa"
+      ],
       "answer": {
         "sw": {
           "text": "Hapana. Visa Grant Notice haimaanishi kuingia nchini kunaruhusiwa moja kwa moja. Afisa Uhamiaji kwenye kituo cha kuingilia atakagua kama umetimiza masharti ya kuingia."
@@ -344,14 +631,28 @@
           "text": "No. A Visa Grant Notice does not guarantee entry. The Immigration Officer at the entry point checks whether you meet the entry requirements."
         }
       },
-      "related": ["visa.track"],
-      "source": { "document": "VISA GUIDELINES.pdf", "pages": [2] }
+      "related": [
+        "visa.track"
+      ],
+      "source": {
+        "document": "VISA GUIDELINES.pdf",
+        "pages": [
+          2
+        ]
+      }
     },
     {
       "id": "residence.types",
       "topic": "residence",
-      "q": { "sw": "Kuna madaraja gani ya vibali vya ukaazi?", "en": "What classes of residence permits are there?" },
-      "aliases": ["aina za vibali vya kuishi", "class a", "class b", "class c", "residence permit types", "types of residence permits"],
+      "q": {
+        "sw": "Kuna madaraja gani ya vibali vya ukaazi?",
+        "en": "What classes of residence permits are there?"
+      },
+      "aliases": [
+        "aina za vibali vya kuishi",
+        "residence permit types",
+        "types of residence permits"
+      ],
       "answer": {
         "sw": {
           "text": "Vibali vya ukaazi vina madaraja matatu:",
@@ -370,14 +671,32 @@
           ]
         }
       },
-      "related": ["residence.apply", "residence.before"],
-      "source": { "document": "RESIDENCE PERMIT  GUIDELINES.pdf", "pages": [3] }
+      "related": [
+        "residence.apply",
+        "residence.before"
+      ],
+      "source": {
+        "document": "RESIDENCE PERMIT  GUIDELINES.pdf",
+        "pages": [
+          3
+        ]
+      }
     },
     {
       "id": "residence.apply",
       "topic": "residence",
-      "q": { "sw": "Ninaombaje kibali cha ukaazi?", "en": "How do I apply for a residence permit?" },
-      "aliases": ["jinsi ya kuomba kibali cha kuishi", "kibali cha kuishi", "work permit", "kazi.go.tz", "how to apply for a residence permit", "residence permit application"],
+      "q": {
+        "sw": "Ninaombaje kibali cha ukaazi?",
+        "en": "How do I apply for a residence permit?"
+      },
+      "aliases": [
+        "jinsi ya kuomba kibali cha kuishi",
+        "kibali cha kuishi",
+        "work permit",
+        "kazi.go.tz",
+        "how to apply for a residence permit",
+        "residence permit application"
+      ],
       "answer": {
         "sw": {
           "text": "Njia inategemea kama shughuli yako inahitaji Work Permit:",
@@ -395,17 +714,47 @@
         }
       },
       "links": [
-        { "label": { "sw": "immigration.go.tz", "en": "immigration.go.tz" }, "url": "https://www.immigration.go.tz" },
-        { "label": { "sw": "kazi.go.tz", "en": "kazi.go.tz" }, "url": "https://www.kazi.go.tz" }
+        {
+          "label": {
+            "sw": "immigration.go.tz",
+            "en": "immigration.go.tz"
+          },
+          "url": "https://www.immigration.go.tz"
+        },
+        {
+          "label": {
+            "sw": "kazi.go.tz",
+            "en": "kazi.go.tz"
+          },
+          "url": "https://www.kazi.go.tz"
+        }
       ],
-      "related": ["residence.types", "residence.before", "residence.track"],
-      "source": { "document": "RESIDENCE PERMIT  GUIDELINES.pdf", "pages": [1, 2, 3] }
+      "related": [
+        "residence.types",
+        "residence.before",
+        "residence.track"
+      ],
+      "source": {
+        "document": "RESIDENCE PERMIT  GUIDELINES.pdf",
+        "pages": [
+          1,
+          2,
+          3
+        ]
+      }
     },
     {
       "id": "residence.before",
       "topic": "residence",
-      "q": { "sw": "Je, niombe kibali kabla ya kuingia Tanzania?", "en": "Must I apply before entering Tanzania?" },
-      "aliases": ["kuomba kibali kabla ya kuingia tanzania", "apply residence permit before entering tanzania", "residence permit application from abroad"],
+      "q": {
+        "sw": "Je, niombe kibali kabla ya kuingia Tanzania?",
+        "en": "Must I apply before entering Tanzania?"
+      },
+      "aliases": [
+        "kuomba kibali kabla ya kuingia tanzania",
+        "apply residence permit before entering tanzania",
+        "residence permit application from abroad"
+      ],
       "answer": {
         "sw": {
           "text": "Ndiyo. Maombi ya Residence Permit yanapaswa kuwasilishwa ukiwa nje ya Tanzania na kuidhinishwa kabla ya kuingia nchini.",
@@ -416,14 +765,30 @@
           "note": "If you are already in the country and your circumstances differ, contact info@immigration.go.tz for guidance on your case."
         }
       },
-      "related": ["residence.apply"],
-      "source": { "document": "RESIDENCE PERMIT  GUIDELINES.pdf", "pages": [1, 4] }
+      "related": [
+        "residence.apply"
+      ],
+      "source": {
+        "document": "RESIDENCE PERMIT  GUIDELINES.pdf",
+        "pages": [
+          1,
+          4
+        ]
+      }
     },
     {
       "id": "residence.track",
       "topic": "residence",
-      "q": { "sw": "Ninafuatiliaje ombi la kibali cha ukaazi?", "en": "How do I track my residence permit application?" },
-      "aliases": ["kufuatilia kibali cha kuishi", "residence permit application status", "track residence permit", "pending payment"],
+      "q": {
+        "sw": "Ninafuatiliaje ombi la kibali cha ukaazi?",
+        "en": "How do I track my residence permit application?"
+      },
+      "aliases": [
+        "kufuatilia kibali cha kuishi",
+        "residence permit application status",
+        "track residence permit",
+        "pending payment"
+      ],
       "answer": {
         "sw": {
           "text": "Ingia kwenye akaunti yako ya maombi. Utaona sehemu hizi:",
@@ -442,14 +807,30 @@
           ]
         }
       },
-      "related": ["residence.missing", "residence.enrolment"],
-      "source": { "document": "RESIDENCE PERMIT  GUIDELINES.pdf", "pages": [3] }
+      "related": [
+        "residence.missing",
+        "residence.enrolment"
+      ],
+      "source": {
+        "document": "RESIDENCE PERMIT  GUIDELINES.pdf",
+        "pages": [
+          3
+        ]
+      }
     },
     {
       "id": "residence.missing",
       "topic": "residence",
-      "q": { "sw": "Ombi langu lina nyaraka pungufu, nifanye nini?", "en": "My application has missing documents — what now?" },
-      "aliases": ["nyaraka pungufu kibali cha kuishi", "residence permit missing documents", "incomplete residence permit application", "query"],
+      "q": {
+        "sw": "Ombi langu lina nyaraka pungufu, nifanye nini?",
+        "en": "My application has missing documents — what now?"
+      },
+      "aliases": [
+        "nyaraka pungufu kibali cha kuishi",
+        "residence permit missing documents",
+        "incomplete residence permit application",
+        "query"
+      ],
       "answer": {
         "sw": {
           "text": "Utaarifiwa kupitia mfumo wa Residence Permit au email ya akaunti yako.",
@@ -466,14 +847,29 @@
           ]
         }
       },
-      "related": ["residence.track"],
-      "source": { "document": "RESIDENCE PERMIT  GUIDELINES.pdf", "pages": [3] }
+      "related": [
+        "residence.track"
+      ],
+      "source": {
+        "document": "RESIDENCE PERMIT  GUIDELINES.pdf",
+        "pages": [
+          3
+        ]
+      }
     },
     {
       "id": "residence.enrolment",
       "topic": "residence",
-      "q": { "sw": "Alama za vidole na picha huchukuliwa lini?", "en": "When are fingerprints and photo taken?" },
-      "aliases": ["alama za vidole kibali cha kuishi", "enrolment notification", "residence permit fingerprints", "residence permit enrolment"],
+      "q": {
+        "sw": "Alama za vidole na picha huchukuliwa lini?",
+        "en": "When are fingerprints and photo taken?"
+      },
+      "aliases": [
+        "alama za vidole kibali cha kuishi",
+        "enrolment notification",
+        "residence permit fingerprints",
+        "residence permit enrolment"
+      ],
       "answer": {
         "sw": {
           "text": "Baada ya malipo, utapokea Residence Permit Enrolment Notification. Fuata maelekezo yake ya kufika Ofisi ya Uhamiaji kwa kuchukuliwa alama za vidole na picha."
@@ -482,35 +878,78 @@
           "text": "After payment, you will receive a Residence Permit Enrolment Notification. Follow its instructions to attend an Immigration Office for fingerprints and a photograph."
         }
       },
-      "related": ["residence.track"],
-      "source": { "document": "RESIDENCE PERMIT  GUIDELINES.pdf", "pages": [2, 3] }
+      "related": [
+        "residence.track"
+      ],
+      "source": {
+        "document": "RESIDENCE PERMIT  GUIDELINES.pdf",
+        "pages": [
+          2,
+          3
+        ]
+      }
     },
     {
       "id": "fees",
       "topic": "general",
-      "q": { "sw": "Ada ni kiasi gani?", "en": "How much are the fees?" },
-      "aliases": ["ada", "gharama", "bei", "shilingi ngapi", "fee", "fees", "cost", "price", "how much"],
+      "q": {
+        "sw": "Ada ni kiasi gani?",
+        "en": "How much are the fees?"
+      },
+      "aliases": [
+        "ada ni kiasi gani",
+        "gharama ni kiasi gani",
+        "ada ni shilingi ngapi",
+        "how much are the fees"
+      ],
       "answer": {
         "sw": {
-          "text": "Ada hubadilika na zinahitaji uthibitisho wa sasa, kwa hiyo sitaji kiasi hapa. Kiasi sahihi huonekana kwenye control number ya ombi lako, au wasiliana na info@immigration.go.tz ukitaja huduma unayoomba."
+          "text": "Ada hutofautiana kulingana na huduma. Andika huduma unayoulizia, kwa mfano “ada ya pasipoti”, “ada ya visa” au “ada ya kibali cha ukaazi Class B”, nami nitakuonyesha jedwali rasmi la ada kutoka immigration.go.tz.",
+          "note": "Kiasi cha mwisho cha kulipa huonekana kwenye control number ya ombi lako."
         },
         "en": {
-          "text": "Fees change and need current confirmation, so I do not quote amounts here. The exact amount appears with your application's control number, or contact info@immigration.go.tz specifying the service."
+          "text": "Fees depend on the service. Type the service you are asking about, for example “passport fee”, “visa fee” or “residence permit class B fee”, and I will show you the official fee table from immigration.go.tz.",
+          "note": "The final amount to pay appears with your application's control number."
         }
       },
-      "related": ["passport.payment"],
+      "related": [
+        "passport.payment"
+      ],
       "source": null
     },
     {
       "id": "contact",
       "topic": "general",
-      "q": { "sw": "Nawasilianaje na Idara ya Uhamiaji?", "en": "How do I contact the Immigration Department?" },
-      "aliases": ["mawasiliano", "email", "barua pepe", "wasiliana", "contact", "help", "msaada"],
-      "answer": {
-        "sw": { "text": "Tuma barua pepe kwa info@immigration.go.tz au tembelea tovuti rasmi immigration.go.tz. Unaweza pia kufika Ofisi ya Uhamiaji iliyo karibu nawe." },
-        "en": { "text": "Email info@immigration.go.tz or visit the official website immigration.go.tz. You can also visit the nearest Immigration Office." }
+      "q": {
+        "sw": "Nawasilianaje na Idara ya Uhamiaji?",
+        "en": "How do I contact the Immigration Department?"
       },
-      "links": [{ "label": { "sw": "Tuma email", "en": "Send email" }, "url": "mailto:info@immigration.go.tz" }],
+      "aliases": [
+        "mawasiliano",
+        "email",
+        "barua pepe",
+        "wasiliana",
+        "contact",
+        "help",
+        "msaada"
+      ],
+      "answer": {
+        "sw": {
+          "text": "Tuma barua pepe kwa info@immigration.go.tz au tembelea tovuti rasmi immigration.go.tz. Unaweza pia kufika Ofisi ya Uhamiaji iliyo karibu nawe."
+        },
+        "en": {
+          "text": "Email info@immigration.go.tz or visit the official website immigration.go.tz. You can also visit the nearest Immigration Office."
+        }
+      },
+      "links": [
+        {
+          "label": {
+            "sw": "Tuma email",
+            "en": "Send email"
+          },
+          "url": "mailto:info@immigration.go.tz"
+        }
+      ],
       "related": [],
       "source": null
     }

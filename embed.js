@@ -276,25 +276,29 @@ function start(script) {
    */
   var SYN = [
     'pasipoti passport hati kusafiria', 'visa viza', 'kibali vibali permit residence ukaazi ukazi',
-    'uraia citizenship citizen naturalisation naturalization tajnisi', 'mgeni wageni foreigner alien immigrant',
+    'uraia citizenship citizen naturalisation naturalization tajnisi', 'mgeni wageni foreigner alien immigrant non-citizen',
     'adhabu penalty punishment faini fine kifungo imprisonment jela', 'kosa makosa offence offense contravene contravention',
     'kuingia ingia entry enter admission', 'kutoka departure exit', 'mpaka mipaka border frontier port kituo',
     'afisa ofisa officer', 'mkurugenzi kamishna director commissioner', 'kufukuzwa fukuza fukuzwa deport deportation removal expel',
-    'marufuku prohibited forbidden', 'kazi ajira fanya work employment employ employed engage', 'mwekezaji uwekezaji investor investment business',
-    'mtoto watoto child children minor', 'ndoa mke mume mwenzi spouse marriage married wife husband',
-    'kuzaliwa birth born', 'ada gharama bei fee fees cost charge', 'kupotea potea imepotea lost stolen imeibiwa ibiwa',
+    'marufuku prohibited forbidden', 'kazi ajira ajiri kuajiri work employment employ employed employer engage', 'mwekezaji uwekezaji investor investment business',
+    'mtoto watoto mdogo child children minor', 'ndoa mke mume mwenzi spouse marriage married wife husband',
+    'kuzaliwa zaliwa birth born', 'nje outside abroad', 'kukana kana renounce renunciation', 'masharti sharti vigezo conditions condition eligibility qualifications', 'kunyang anywa nyang deprivation deprive deprived', 'ada gharama bei fee fees cost charge', 'kupotea potea imepotea lost stolen imeibiwa ibiwa',
     'kuharibika imeharibika damaged', 'maombi ombi kuomba omba apply application applicant',
     'kufuta kufutwa futwa futa cancel cancelled cancellation revoke revocation', 'rufaa appeal', 'mkimbizi wakimbizi refugee asylum',
     'kuongeza kurefusha refusha extension extend renew renewal', 'muda kipindi period duration validity',
     'pacha dual', 'kukamatwa kamata kamatwa arrest detain detention', 'msafiri wasafiri traveller traveler passenger',
     'meli ship vessel', 'ndege aircraft', 'mwajiri employer', 'mwanafunzi wanafunzi student', 'kujitolea volunteer',
-    'mstaafu wastaafu retiree retired', 'mmisionari missionary', 'mtafiti researcher research', 'siku days', 'mwaka miaka year years',
+    'mstaafu wastaafu retiree retired', 'mmisionari missionary', 'mtafiti researcher research', 'siku days', 'nchi country countries', 'hitaji require required requirement requirements', 'ruhusiwa ruhusa allowed permitted', 'chukua processing processed process', 'dharura emergency', 'mwanafunzi wanafunzi student students', 'mwaka miaka year years',
     'mahakama court', 'hati document documents nyaraka vielelezo', 'kughushi ghushi forge forgery forged false', 'kusafirisha smuggle smuggling trafficking'
   ].map(function (g) { return g.split(' '); });
   var SYNMAP = {};
-  SYN.forEach(function (g) { g.forEach(function (w) { SYNMAP[stem(w)] = (SYNMAP[stem(w)] || []).concat(g.map(stem)); }); });
+  SYN.forEach(function (g) {
+    var toks = [];
+    g.forEach(function (w) { (normalize(w).match(/[a-z0-9]+/g) || []).forEach(function (t) { toks.push(stem(t)); }); });
+    toks.forEach(function (t) { SYNMAP[t] = (SYNMAP[t] || []).concat(toks); });
+  });
   var DSTOP = {};
-  (STOP.join(' ') + ' bila nifanye nifanyeje fanye nchini nchi tanzania mimi wewe yeye sisi changu chako chake zangu zako yake wake yetu nini sasa pia tu kweli ili shall such under may it its from who whom whose person act section any be by as at this that these those there where when been being has have had not no all other than into upon within without per said subsection paragraph regulations regulation made provided unless').split(' ').forEach(function (w) { if (w) DSTOP[w] = 1; });
+  (STOP.join(' ') + ' bila kiasi kupata pata nifanye nifanyeje fanye ngapi gani nchini tanzania mimi wewe yeye sisi changu chako chake zangu zako yake wake yetu nini sasa pia tu kweli ili shall such under may it its from who whom whose person act section any be by as at this that these those there where when been being has have had not no all other than into upon within without per said subsection paragraph regulations regulation made provided unless').split(' ').forEach(function (w) { if (w) DSTOP[w] = 1; });
 
   function stem(w) {
     if (w.length > 5) {
@@ -307,7 +311,12 @@ function start(script) {
     return w;
   }
   function dtokens(s) {
-    return (normalize(s).match(/[a-z0-9]+/g) || []).filter(function (w) { return w.length > 1 && !DSTOP[w]; }).map(stem);
+    // "Class B", "Permit C", "daraja B" -> neno moja "classb"
+    s = normalize(s).replace(/\b(class|permit|daraja|kundi)\s+([abc])\b/g, ' $1 class$2 ')
+      // kukanusha: "zisizohitaji visa", "do not require a visa" -> norequire
+      .replace(/\b(do not|does not|don t|doesn t|not) requir\w*/g, ' norequire ')
+      .replace(/\b\w*sizohitaji\b|\bhazihitaji\b|\bhaihitaji\b|\bhahitaji\b|\bvisa free\b/g, ' norequire ');
+    return (s.match(/[a-z0-9]+/g) || []).filter(function (w) { return w.length > 1 && !DSTOP[w]; }).map(stem);
   }
 
   var docs = [], postings = {}, avgLen = 1;
@@ -344,7 +353,7 @@ function start(script) {
             .sort(function (a, b) { return b.length - a.length; })[0];
           if (root) syn = SYNMAP[root].concat(root);
         }
-        (syn || []).forEach(function (x) { if (!g[x]) g[x] = 0.7; });
+        (syn || []).forEach(function (x) { if (!g[x]) g[x] = 0.95; }); // lugha isiamue jibu: kisawe ~ neno lenyewe
         return g;
       });
   }
@@ -355,6 +364,7 @@ function start(script) {
   function searchDocs(q, k) {
     if (!docs.length) return [];
     var groups = queryGroups(q), scores = {};
+    var wantsFee = groups.some(function (g) { return g.fee || g.ada || g.gharama; });
     groups.forEach(function (g) {
       // kwa kila kundi, chukua alama bora ya neno lake moja ndani ya kila hati (visawe havijumlishwi mara mbili)
       var best = {};
@@ -370,7 +380,16 @@ function start(script) {
     });
     return Object.keys(scores).map(function (i) {
       var d = docs[i], hit = groups.filter(function (g) { return Object.keys(g).some(function (t) { return d.tf[t]; }); }).length;
-      return { d: d, score: scores[i], coverage: groups.length ? hit / groups.length : 0 };
+      // vipande vifupi sana ("angalia jedwali hapa chini") visishinde maelezo kamili
+      var prior = Math.sqrt(Math.min(1, d.len / 30));
+      // kichwa cha kipengele chenye maneno ya swali ni ishara kubwa ya jibu sahihi
+      var tt = {};
+      dtokens((d.s.title || '') + ' ' + (d.law.title || '')).forEach(function (t) { tt[t] = 1; });
+      var titleHit = groups.filter(function (g) { return Object.keys(g).some(function (t) { return tt[t]; }); }).length;
+      var boost = 1 + 0.8 * (groups.length ? titleHit / groups.length : 0);
+      if (wantsFee && isTable(d.text)) boost *= 1.6;
+      boost *= Math.pow(d.law.priority || 1, wantsFee ? 3 : 1); // ada: majedwali safi ya tovuti rasmi kwanza
+      return { d: d, score: scores[i] * prior * boost, coverage: groups.length ? hit / groups.length : 0 };
     }).sort(function (a, b) { return b.score - a.score; }).slice(0, k || 5);
   }
   // Gawa maandishi ya kisheria kuwa sentensi/vifungu vidogo: (1), (a), au mwisho wa sentensi.
@@ -393,14 +412,41 @@ function start(script) {
     var top = scored.sort(function (a, b) { return b.score - a.score; }).slice(0, max);
     return top.sort(function (a, b) { return a.i - b.i; });
   }
+  // Jedwali (ada n.k.): onyesha mistari yote badala ya sentensi 3.
+  function isTable(text) {
+    var lines = text.split('\n');
+    var money = lines.filter(function (l) { return /\b(USD|Tsh|TZS|Gratis)\b|\d[\d,]*\/-/i.test(l); }).length;
+    return (text.match(/\|/g) || []).length >= 6 || money >= 3;
+  }
+  function tableLines(text) {
+    // mistari ya jedwali tu (yenye | au kiasi cha fedha); simama aya ndefu ya maelezo ikianza
+    var out = [];
+    text.split('\n').some(function (l) {
+      l = l.trim();
+      if (!l) return false;
+      var row = /\|/.test(l) || (/\b(USD|Tsh|TZS|Gratis)\b|\d[\d,]*\/-/i.test(l) && l.length < 110) || l.length < 60;
+      if (!row && out.length >= 2) return true;
+      if (row) out.push(l);
+      return out.length >= 10;
+    });
+    return out.map(function (l, i) { return { i: i, text: l, score: 1 }; });
+  }
   function docsAnswer(q) {
-    var hits = searchDocs(q, 6);
-    if (!hits.length) return null;
-    var groups = queryGroups(q), top = hits[0];
-    if (groups.length === 1 && topicFor(q)) return null; // "uraia" peke yake -> fungua mada
+    var groups = queryGroups(q);
+    if (!groups.length || (groups.length === 1 && topicFor(q))) return null; // "uraia" peke yake -> fungua mada
     var need = groups.length <= 2 ? 1 : 0.5;
-    if (top.coverage < need) return null;
-    var picks = bestSentences(top.d, groups, 3);
+    var hits = searchDocs(q, 12).filter(function (h) { return h.coverage >= need; });
+    if (!hits.length) return null;
+    // alama ya BM25 ikichanganywa na sehemu ya maneno ya swali yaliyoguswa
+    hits.sort(function (a, b) { return b.score * (0.4 + b.coverage) - a.score * (0.4 + a.coverage); });
+    var top = hits[0];
+    var picks = isTable(top.d.text) ? tableLines(top.d.text) : bestSentences(top.d, groups, 3);
+    var second = null;
+    if (isTable(top.d.text)) { // swali la ada: onyesha pia jedwali la pili linalohusiana (mf. ndani ya nchi / ubalozini)
+      second = hits.slice(1).filter(function (h) {
+        return h.d.s !== top.d.s && h.d.law === top.d.law && isTable(h.d.text) && h.score >= top.score * 0.5;
+      })[0] || null;
+    }
     if (!picks.length) return null;
     var others = [], seen = {};
     seen[top.d.law.id + '#' + top.d.s.no + top.d.s.title] = 1;
@@ -408,7 +454,8 @@ function start(script) {
       var key = h.d.law.id + '#' + h.d.s.no + h.d.s.title;
       if (!seen[key] && h.coverage >= need * 0.8 && h.score >= top.score * 0.45) { seen[key] = 1; others.push(h); }
     });
-    return { top: top, picks: picks, others: others.slice(0, 3), groups: groups };
+    if (second) others = others.filter(function (h) { return h.d.s !== second.d.s; });
+    return { top: top, picks: picks, second: second, others: others.slice(0, 3), groups: groups };
   }
   function highlight(text, groups, node) {
     var words = {};
@@ -417,6 +464,13 @@ function start(script) {
       if (/^[A-Za-z0-9À-ɏ]+$/.test(part) && words[stem(normalize(part))]) node.appendChild(el('mark', null, part));
       else if (part) node.appendChild(document.createTextNode(part));
     });
+  }
+  // Sehemu ya maneno ya swali yanayopatikana kwenye swali/majina mbadala ya FAQ yenyewe.
+  function faqCoverage(f, q) {
+    var groups = queryGroups(q), toks = {};
+    dtokens([f.q.sw, f.q.en].concat(f.aliases || []).join(' ')).forEach(function (t) { toks[t] = 1; });
+    if (!groups.length) return 1;
+    return groups.filter(function (g) { return Object.keys(g).some(function (t) { return toks[t]; }); }).length / groups.length;
   }
   function lawRef(law, s) { return law.title + (s.no ? ' — ' + t('section') + ' ' + s.no : '') + (s.title ? ' (' + s.title + ')' : ''); }
   function searchLaws(q) {
@@ -749,6 +803,15 @@ function start(script) {
       quote.appendChild(para);
     });
     card.appendChild(quote);
+    if (ans.second) {
+      var d2 = ans.second.d, lead2 = el('div', 'hh-docs-lead');
+      lead2.innerHTML = icon('law') + '<span></span>';
+      lead2.lastChild.textContent = lawRef(d2.law, d2.s) + ':';
+      card.appendChild(lead2);
+      var q2 = el('blockquote', 'hh-quote');
+      tableLines(d2.text).forEach(function (p) { var para = el('p'); highlight(p.text, ans.groups, para); q2.appendChild(para); });
+      card.appendChild(q2);
+    }
     card.appendChild(chipRow([{ label: t('readSection'), icon: 'doc', go: function () { showSection(d.law, d.s); } }]));
     var src = el('div', 'hh-source');
     src.innerHTML = icon('doc') + '<span></span>';
@@ -790,7 +853,7 @@ function start(script) {
       var ans = docsAnswer(text);
       var faqOk = top && top.score >= 0.62 && (!second || top.score - second.score >= 0.12);
       // FAQ iliyohakikiwa hushinda, isipokuwa nyaraka zinagusa swali lote na FAQ si ya uhakika mkubwa.
-      if (faqOk && !(ans && ans.top.coverage >= 0.99 && top.score < 0.9)) {
+      if (faqOk && !(ans && ans.top.coverage >= 0.99 && faqCoverage(top.f, text) < 0.99)) {
         showAnswer(top.f.id, true, ans ? [ans.top].concat(ans.others).slice(0, 2) : null);
         return;
       }

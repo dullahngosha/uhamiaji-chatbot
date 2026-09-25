@@ -29,6 +29,7 @@ from datetime import date
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 EXTS = {".pdf", ".docx", ".txt", ".md"}
+SKIP_DIRS = {"tools", "data", "assets", "node_modules", "__pycache__", "vendor"}
 
 
 # ---------------------------------------------------------------- extraction
@@ -93,17 +94,47 @@ SEC_RE = re.compile(
 )
 PART_RE = re.compile(r"^\s*(PART|SEHEMU(?: YA)?)\s+([IVXLC]+|[A-Z]+|\d+)\b.*$", re.I)
 HEADING_RE = re.compile(r"^[A-Z0-9][A-Z0-9 ,'&()/\-]{4,80}$")
+# Vichwa vya miongozo/brochures: "2.1 PASIPOTI YA KAWAIDA (ORDINARY PASSPORT)", "UTANGULIZI"
+GUIDE_HEAD_RE = re.compile(r"^(\d{1,2}(\.\d{1,2})*\.?\s+)?[A-Z][A-Z0-9 ,'&()/\-.:?]{5,90}$")
+FORM_LINE_RE = re.compile(r"[.\u2026_]{6,}")
 
 
-def split_sections(pages):
-    """Rudisha orodha ya vifungu [{no,title,text,page,part}]."""
-    lines = []
-    for page_no, text in pages:
-        for line in clean(text).splitlines():
-            if line.strip():
-                lines.append((page_no, line.strip()))
+NOISE_RE = re.compile(
+    r"^(\u00a9|Acts?\s+Nos?\.?|Act\s+No\.?|G\.?\s?N\.?\s+No|R\.?\s?L\.?\s+Caps?|Caps?\.\s*\d|Ord\.?\s+No|"
+    r"\[\s*\d|\d+\s+of\s+\d{4}\b|s{1,2}\.\s*\d+[A-Z]?(\(\d+\))?\s*$|\d{1,4}\s*$)", re.I)
 
-    sections, cur, last_no, part = [], None, 0, ""
+
+def page_lines(pages):
+    """Mistari safi: ondoa vichwa/miguu inayojirudia kila ukurasa na marejeo ya marekebisho pembeni."""
+    per_page = [[l.strip() for l in clean(t).splitlines() if l.strip()] for _, t in pages]
+    counts = {}
+    for lines in per_page:
+        for l in set(re.sub(r"\d+", "#", l) for l in lines):
+            counts[l] = counts.get(l, 0) + 1
+    limit = max(3, int(len(pages) * 0.4)) if len(pages) >= 4 else 10 ** 9
+    out, form_lines, total = [], 0, 0
+    for (page_no, _), lines in zip(pages, per_page):
+        for l in lines:
+            total += 1
+            if FORM_LINE_RE.search(l):
+                form_lines += 1
+                continue
+            if counts.get(re.sub(r"\d+", "#", l), 0) >= limit or NOISE_RE.match(l):
+                continue
+            out.append((page_no, l))
+    if total and form_lines / total > 0.15:
+        raise FormDocument()
+    return out
+
+
+class FormDocument(Exception):
+    """Faili ni fomu ya kujaza (mistari ya ...... mingi) — haina majibu."""
+
+
+def scan_sections(lines):
+    """Pita mistari na kukusanya vifungu. Nambari zikianza upya kutoka 1 (baada ya orodha ya
+    vifungu/TOC), anza "mzunguko" mpya. Rudisha orodha ya mizunguko."""
+    passes, sections, cur, last_no, part = [], [], None, 0, ""
     prev_short, part_title_next = "", False
     for page_no, line in lines:
         pm = PART_RE.match(line)
@@ -118,15 +149,19 @@ def split_sections(pages):
         m = SEC_RE.match(line)
         if m:
             num = int(re.match(r"\d+", m.group(1)).group())
+            restart = num == 1 and last_no >= 3
             # Kubali tu nambari zinazofuatana (epuka orodha za ndani ya kifungu)
-            if last_no < num <= last_no + 4 or (num == last_no and m.group(1)[-1:].isalpha()):
+            if restart or last_no < num <= last_no + 4 or (num == last_no and m.group(1)[-1:].isalpha()):
                 if cur:
                     # kichwa cha kifungu kipya kisibaki mwishoni mwa kifungu kilichopita
                     if prev_short and cur["text"].endswith(prev_short):
                         cur["text"] = cur["text"][: -len(prev_short)].rstrip()
                     sections.append(cur)
+                if restart:
+                    passes.append(sections)
+                    sections = []
                 title = prev_short or m.group(3)[:90]
-                cur = {"no": m.group(1), "title": title.strip(" .-"), "text": ((m.group(2) or "") + m.group(3)).strip(),
+                cur = {"no": m.group(1), "title": title.strip(" .-\u2013"), "text": ((m.group(2) or "") + m.group(3)).strip(),
                        "page": page_no, "part": part}
                 last_no = num
                 prev_short = ""
@@ -137,27 +172,106 @@ def split_sections(pages):
         prev_short = line if (len(line) <= 70 and not line.endswith((".", ";", ",", ":")) and not line[0].isdigit()) else ""
     if cur:
         sections.append(cur)
-
-    if len(sections) >= 3:
-        return sections
-    return split_by_headings(lines)
+    passes.append(sections)
+    return [p for p in passes if p]
 
 
-def split_by_headings(lines, size=1200):
+def split_sections(pages):
+    """Rudisha orodha ya vifungu [{no,title,text,page,part}]."""
+    lines = page_lines(pages)
+    head = " ".join(l for _, l in lines[:80])
+    if not re.search(r"\bThis Act may be cited\b|\bAN ACT\b|\bAn Act to\b", head):
+        return split_by_headings(lines)  # mwongozo/brochure, si sheria
+    passes = scan_sections(lines)
+    if not passes or max(len(p) for p in passes) < 3:
+        return split_by_headings(lines)
+    body = max(passes, key=lambda p: sum(len(s["text"]) for s in p))
+    # Orodha ya vifungu (TOC): mzunguko wenye maandishi mafupi — tumia vichwa vyake.
+    toc = {}
+    for p in passes:
+        if p is not body and sum(len(s["text"]) for s in p) / len(p) < 150:
+            for s in p:
+                t = s["text"].split("\n")[0].strip(" .")
+                if 2 < len(t) <= 120:
+                    toc.setdefault(s["no"], t)
+    key = lambda t: re.sub(r"[^a-z0-9]+", "", t.lower())
+    titles = {key(t) for t in toc.values()}
+    for s in body:
+        if s["no"] in toc:
+            s["title"] = toc[s["no"]]
+        if titles:
+            s["text"] = strip_margin_notes(s["text"].split("\n"), titles, key)
+    return body
+
+
+def strip_margin_notes(lines, titles, key):
+    """Ondoa vichwa vya pembeni (marginal notes) vilivyochanganyika na maandishi, hata vikiwa
+    vimevunjika katika mistari 2-4 (mf. "Persons born in United Republic on or after" + "Union Day")."""
+    out, i = [], 0
+    while i < len(lines):
+        for n in (4, 3, 2, 1):
+            if i + n <= len(lines) and key(" ".join(lines[i:i + n])) in titles:
+                i += n
+                break
+        else:
+            out.append(lines[i])
+            i += 1
+    return "\n".join(out)
+
+
+# Vichwa vifupi vya huduma kwa herufi ndogo: "Re-Entry Pass", "In Transit Pass", "Student Visa"
+SERVICE_HEAD_RE = re.compile(r"^(?:[A-Z][\w'-]*\s+){0,3}(Pass|Visa|Permit|Passport|Certificate|Document)$")
+SUBHEAD_RE = re.compile(r"^\d{1,2}\.\d{1,2}(\.\d{1,2})?\.?\s+[A-Z][\w ,'()/&-]{2,70}$")
+
+
+def split_by_headings(lines, size=1800):
     """Kwa miongozo isiyo na vifungu vya nambari: gawa kwa vichwa vya herufi kubwa au kwa urefu."""
     sections, cur = [], None
     for page_no, line in lines:
-        is_head = HEADING_RE.match(line) and len(line.split()) <= 10
+        words = line.split()
+        if line.startswith("## "):  # kichwa kilichowekwa wazi (mf. kurasa za tovuti kutoka fetch_official.py)
+            line = line[3:].strip()
+            if cur and cur["text"].strip():
+                sections.append(cur)
+            cur = {"no": "", "title": line[:90], "base": line[:90], "part_no": 1, "text": "", "page": page_no, "part": ""}
+            continue
+        is_head = (bool(GUIDE_HEAD_RE.match(line)) and 2 <= len(words) <= 12 and sum(c.isalpha() for c in line) >= 6) \
+            or (bool(SUBHEAD_RE.match(line)) and not line.endswith((".", ";", ","))) \
+            or bool(SERVICE_HEAD_RE.match(line))
         if cur is None or is_head or len(cur["text"]) > size:
             if cur and cur["text"].strip():
                 sections.append(cur)
-            cur = {"no": "", "title": line[:90] if is_head else (cur["title"] + " (endelea)" if cur else line[:90]),
+            if is_head or cur is None:
+                base, part_no = line[:90].strip(" .:"), 1
+            else:
+                base, part_no = cur["base"], cur["part_no"] + 1
+            cur = {"no": "", "title": base if part_no == 1 else f"{base} ({part_no})", "base": base, "part_no": part_no,
                    "text": "" if is_head else line, "page": page_no, "part": ""}
             continue
         cur["text"] += ("\n" if cur["text"] else "") + line
     if cur and cur["text"].strip():
         sections.append(cur)
+    for s in sections:
+        s.pop("base", None)
+        s.pop("part_no", None)
     return sections
+
+
+def reflow(text):
+    """Unganisha mistari iliyokatwa na upana wa ukurasa wa PDF; aya mpya huanza kwa (1), (a),
+    ufafanuzi wa neno ("...") au baada ya mstari unaoishia kwa . ; : -"""
+    out = []
+    for line in text.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        starts_new = re.match(r"^(\(\w{1,5}\)|[\u201c\"]|[-\u2022\u25cf\u2013\u2014*]\s|\d+[.)]\s|[A-Z][A-Z ,'&()/-]{6,}$)", line)
+        if out and not starts_new and not re.search(r"[.;:!?\-\u2013\u2014]$", out[-1]):
+            joiner = "" if out[-1].endswith("-") else " "
+            out[-1] = out[-1] + joiner + line
+        else:
+            out.append(line)
+    return "\n".join(out)
 
 
 def title_of(path, pages):
@@ -230,9 +344,12 @@ def main():
         if os.path.isfile(target):
             files.append(target)
             continue
-        for dirpath, _, names in os.walk(target):
+        for dirpath, dirnames, names in os.walk(target):
+            # ruka folda za mfumo (repo yenyewe inaweza kuwa ndani ya folda ya sheria)
+            dirnames[:] = [d for d in dirnames if d not in SKIP_DIRS and not d.startswith(".")]
             for n in sorted(names):
-                if os.path.splitext(n)[1].lower() in EXTS and not n.startswith("~$"):
+                if os.path.splitext(n)[1].lower() in EXTS and not n.startswith("~$") \
+                        and not re.match(r"(?i)^(readme|license|changelog)\b", n):
                     files.append(os.path.join(dirpath, n))
 
     docs, seen_hash = [], {}
@@ -267,15 +384,25 @@ def main():
     laws, ids = [], set()
     for d in sorted(kept, key=lambda d: os.path.basename(d["path"]).lower()):
         title = title_of(d["path"], d["pages"])
-        sections = split_sections(d["pages"])
+        try:
+            sections = split_sections(d["pages"])
+        except FormDocument:
+            print(f"  RUKA (ni fomu ya kujaza, haina majibu): {d['path']}")
+            continue
         for s in sections:
             s["text"] = re.sub(r"\n{3,}", "\n\n", s["text"]).strip()
+        for s in sections:
+            s["text"] = reflow(s["text"])
         sections = [s for s in sections if len(s["text"]) > 20 or s["title"]]
         lid = slug(title) or "sheria"
         while lid in ids:
             lid += "-2"
         ids.add(lid)
-        laws.append({"id": lid, "title": title, "file": os.path.basename(d["path"]), "sections": sections})
+        law = {"id": lid, "title": title, "file": os.path.basename(d["path"]), "sections": sections}
+        if os.path.basename(d["path"]).startswith("Tovuti ya Uhamiaji"):
+            law["priority"] = 1.3  # kurasa za tovuti rasmi: safi na za sasa (mf. majedwali ya ada)
+            law["file"] = "immigration.go.tz"
+        laws.append(law)
         print(f"  OK  {title}: vifungu {len(sections)}")
 
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
