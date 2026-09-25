@@ -60,11 +60,13 @@ Kwa kila jibu jipya, weka `document` na `pages` za chanzo. Jibu lisilo na chanzo
 
 ## 3. Kuunganisha na blog (Blogger)
 
-Weka mstari huu mara moja kabla ya `</body>` kwenye template. **Ondoa script ya zamani** (`embed.js?v=static-faq-1`) kwanza:
+Blog tayari ina mstari huu, na **haihitaji kubadilishwa**:
 
 ```html
-<script src="https://dullahngosha.github.io/uhamiaji-chatbot/embed.js?v=2.0.0" defer></script>
+<script src="https://dullahngosha.github.io/uhamiaji-chatbot/embed.js"></script>
 ```
+
+Kila mabadiliko yanapoingia kwenye `main`, GitHub Pages huyasambaza, na wageni huyaona ndani ya takriban dakika 10 (muda wa cache ya GitHub Pages). Script inafanya kazi ikiwa ndani ya `<head>` au kabla ya `</body>`, iwe na `defer` au isiwe nayo. Iwe mara moja tu kwenye template.
 
 Chaguo za ziada (sifa za `data-*` kwenye tag ya script):
 

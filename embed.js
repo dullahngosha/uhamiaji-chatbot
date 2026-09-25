@@ -5,9 +5,17 @@
  */
 (function () {
   'use strict';
+  var script = document.currentScript;
+  // Script ikiwekwa kwenye <head> bila defer, subiri <body> ipatikane.
+  if (!document.body) {
+    document.addEventListener('DOMContentLoaded', function () { start(script); });
+    return;
+  }
+  start(script);
+
+function start(script) {
   if (document.getElementById('hamahama-panel')) return;
 
-  var script = document.currentScript;
   var base = script && script.src ? script.src.replace(/[^/]+$/, '') : './';
   var cfg = (script && script.dataset) || {};
   var KB_URL = cfg.kb || base + 'data/knowledge.json';
@@ -863,4 +871,5 @@
     show: function (id) { toggle(true); kbPromise.then(function () { showAnswer(id); }); },
     version: VERSION
   };
+}
 })();
