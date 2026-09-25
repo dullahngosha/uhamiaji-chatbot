@@ -100,6 +100,17 @@ python -m http.server 8000
 
 Jaribu "nataka pasipoti", "pasipoti imepotea", "visa ya watoto", "gharama", "uraia" na "habari mkuu". Baada ya kuweka sheria, jaribu pia "nikiingia bila pasipoti adhabu ni nini?", "kibali changu kimefutwa nifanye nini" na "nikifukuzwa nchini".
 
+## 5. Bot ya Facebook Messenger na Instagram
+
+Maswali na majibu yale yale yanajibiwa kiotomatiki kwenye Messenger na Instagram DM.
+Bot inaishi kwenye Cloudflare Workers, ambayo ni bure, na mwongozo kamili wa kuiweka hewani uko kwenye [`bot/README.md`](bot/README.md).
+
+| Faili | Kazi |
+|---|---|
+| `bot/worker.src.js` | Code ya bot (hariri hapa) |
+| `bot/worker.js` | Faili la kubandika Cloudflare (linatengenezwa na `python3 tools/build_bot.py`) |
+| `tools/test_bot.mjs` | Majaribio: `node tools/test_bot.mjs` |
+
 ## Tahadhari
 
 - Repo ni ya umma. **Usiweke nyaraka zenye taarifa binafsi.**
