@@ -73,6 +73,7 @@
   ],
   "popular": [
     "passport.apply",
+    "passport.fee",
     "visa.apply",
     "residence.apply",
     "passport.lost",
@@ -131,6 +132,7 @@
       ],
       "related": [
         "passport.requirements",
+        "passport.fee",
         "passport.payment",
         "passport.track"
       ],
@@ -268,6 +270,63 @@
       }
     },
     {
+      "id": "passport.fee",
+      "topic": "passport",
+      "q": {
+        "sw": "Ada ya pasipoti ni kiasi gani?",
+        "en": "How much is the passport fee?"
+      },
+      "aliases": [
+        "ada ya pasipoti",
+        "gharama ya pasipoti",
+        "bei ya pasipoti",
+        "pasipoti ni shilingi ngapi",
+        "pasipoti ni bei gani",
+        "ada ya passport",
+        "passport fee",
+        "passport cost",
+        "how much is a passport"
+      ],
+      "answer": {
+        "sw": {
+          "text": "Ada ya pasipoti ukiomba ukiwa Tanzania ni Tsh 150,000. Inalipwa kwa awamu mbili:",
+          "steps": [
+            "Ukimaliza kujaza fomu mtandaoni, unalipia Tsh 20,000 (ada ya maombi).",
+            "Unakamilisha taratibu zote na kuwasilisha fomu pamoja na viambatisho kwenye Ofisi ya Uhamiaji, ambapo zinakaguliwa.",
+            "Mwisho unalipia Tsh 130,000 kwa control number."
+          ],
+          "note": "Malipo yote hufanywa kwa control number kupitia simu au benki. Ukiomba ukiwa nje ya nchi (kupitia Ubalozi), ada ni USD 90, inayolipwa yote baada ya kujaza fomu."
+        },
+        "en": {
+          "text": "The passport fee when applying in Tanzania is Tsh 150,000, paid in two instalments:",
+          "steps": [
+            "After completing the online form, pay Tsh 20,000 (application fee).",
+            "Complete all requirements and submit the form with attachments at the Immigration Office, where they are checked.",
+            "Finally, pay Tsh 130,000 using the control number."
+          ],
+          "note": "All payments are made with a control number via mobile money or bank. If you apply from abroad (through an Embassy), the fee is USD 90, paid in full after completing the form."
+        }
+      },
+      "links": [
+        {
+          "label": {
+            "sw": "Fungua immigration.go.tz",
+            "en": "Open immigration.go.tz"
+          },
+          "url": "https://www.immigration.go.tz"
+        }
+      ],
+      "related": [
+        "passport.apply",
+        "passport.payment",
+        "passport.requirements"
+      ],
+      "source": {
+        "document": "immigration.go.tz — Passport Fee (Matrix Fee for Passports)",
+        "pages": []
+      }
+    },
+    {
       "id": "passport.payment",
       "topic": "passport",
       "q": {
@@ -300,8 +359,8 @@
         }
       },
       "related": [
-        "passport.apply",
-        "fees"
+        "passport.fee",
+        "passport.apply"
       ],
       "source": {
         "document": "MWONGOZO WA HUDUMA YA PASIPOTI NA HATI ZA KUSAFIRIA.pdf",
