@@ -1,5 +1,8 @@
 # Mr. HamaHama kwenye Facebook Messenger na Instagram
 
+> **Hali ya sasa:** bot iko hewani kwenye <https://hamahama-bot.hamahama.workers.dev> (Cloudflare, akaunti ya Uhamiaji), imeunganishwa na ukurasa wa Facebook.
+> Jaribio la haraka: <https://hamahama-bot.hamahama.workers.dev/test?q=ada%20ya%20pasipoti>
+
 Bot hii inajibu kiotomatiki ujumbe wa **Facebook Messenger** na **Instagram DM**, saa 24.
 Inatumia maswali na majibu yale yale 106 ya widget ya blogu (`data/knowledge.json`) na utafutaji ule ule.
 Haitumii AI wala API ya kulipia.
