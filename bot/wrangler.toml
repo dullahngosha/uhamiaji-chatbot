@@ -7,9 +7,7 @@ compatibility_date = "2026-09-01"
 [vars]
 KB_URL = "https://dullahngosha.github.io/uhamiaji-chatbot/data/knowledge.json"
 
-# Hiari: kumbukumbu fupi (lugha na orodha ya mwisho). Tengeneza kwa:
-#   npx wrangler kv namespace create hamahama-state
-# kisha weka id hapa na uondoe alama za maoni.
-# [[kv_namespaces]]
-# binding = "STATE"
-# id = "WEKA_ID_HAPA"
+# Kumbukumbu fupi (lugha na orodha ya mwisho ya kila mtumiaji)
+[[kv_namespaces]]
+binding = "STATE"
+id = "b9fbb267638e40d2bf108a400f39e96d"
